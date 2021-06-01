@@ -52,8 +52,10 @@
     }
   }, 500);
 
-  function pickRandom() {
+  async function pickRandom() {
     const randomIndex = Math.floor(Math.random() * 15);
+    const randomResults = await handleRandomClick()
+    results = randomResults;
     return results?.results[randomIndex];
   }
 
@@ -66,8 +68,10 @@
 
   async function getRandomSound() {
     try {
-      const randomResults = await handleRandomClick();
+      // const randomResults = await handleRandomClick();
+      // console.log(randomResults)
       const randomSound = await pickRandom();
+      console.log(randomSound)
       setRandom(randomSound);
       random.set(false);
     } catch (err) {

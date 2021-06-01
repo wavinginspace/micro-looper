@@ -1,21 +1,21 @@
 <script>
-  import * as Tone from "tone";
-  import { usePrevious } from "svelte-previous";
-  import throttle from "just-throttle";
-  import LibLoader from "./LibLoader.svelte";
-  import Knob from "./Knob.svelte";
-  import { sound, random } from "../store";
-  import { afterUpdate } from "svelte";
+  import * as Tone from 'tone';
+  import { usePrevious } from 'svelte-previous';
+  import throttle from 'just-throttle';
+  import LibLoader from './LibLoader.svelte';
+  import Knob from './Knob.svelte';
+  import { sound, random } from '../store';
+  import { afterUpdate } from 'svelte';
 
-  import Play from "carbon-icons-svelte/lib/PlayFilledAlt24";
-  import Pause from "carbon-icons-svelte/lib/PauseFilled24";
-  import Loop from "carbon-icons-svelte/lib/EdtLoop24";
-  import Reverse from "carbon-icons-svelte/lib/Renew24";
-  import Reset from "carbon-icons-svelte/lib/Reset20";
-  import VolumeHigh from "carbon-icons-svelte/lib/VolumeUpFilled20";
-  import VolumeLow from "carbon-icons-svelte/lib/VolumeDownFilled20";
-  import VolumeOff from "carbon-icons-svelte/lib/VolumeMuteFilled20";
-  import Random from "carbon-icons-svelte/lib/Network_420";
+  import Play from 'carbon-icons-svelte/lib/PlayFilledAlt24';
+  import Pause from 'carbon-icons-svelte/lib/PauseFilled24';
+  import Loop from 'carbon-icons-svelte/lib/EdtLoop24';
+  import Reverse from 'carbon-icons-svelte/lib/Renew24';
+  import Reset from 'carbon-icons-svelte/lib/Reset20';
+  import VolumeHigh from 'carbon-icons-svelte/lib/VolumeUpFilled20';
+  import VolumeLow from 'carbon-icons-svelte/lib/VolumeDownFilled20';
+  import VolumeOff from 'carbon-icons-svelte/lib/VolumeMuteFilled20';
+  import Random from 'carbon-icons-svelte/lib/Network_420';
 
   let player = new Tone.GrainPlayer($sound.sound);
   const gainNode = new Tone.Gain();
@@ -35,13 +35,13 @@
   function initOpusRecorder() {
     const workerOptions = {
       OggOpusEncoderWasmPath:
-        "https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm",
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm',
       WebMOpusEncoderWasmPath:
-        "https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm",
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm',
     };
 
     let options = {
-      mimeType: "audio/wav",
+      mimeType: 'audio/wav',
     };
     // replace native MediaRecorder with OpusMediaRecorder
     // @ts-ignore
@@ -53,21 +53,21 @@
       // if no sound loaded, don't download
       if (!$sound.sound) return;
       // else load hidden audio element with recorded data and download
-      audioRecord.src = "";
+      audioRecord.src = '';
       let blob = new Blob(chunks);
       audioRecord.src = URL.createObjectURL(blob);
-      let a = document.createElement("a");
+      let a = document.createElement('a');
       document.body.appendChild(a);
       a.href = audioRecord.src;
-      a.download = `${$sound.name.split(".")[0]}.wav`;
+      a.download = `${$sound.name.split('.')[0]}.wav`;
       a.click();
       window.URL.revokeObjectURL(audioRecord.src);
     };
   }
 
   // TODO refactor this into object ??
-  let playing = player?.state === "started";
-  let recording = recorder?.state === "active";
+  let playing = player?.state === 'started';
+  let recording = recorder?.state === 'active';
   let audioRecord; // recording audio element
   let mute = false;
   let loop = false;
@@ -102,7 +102,7 @@
           Tone.Destination,
           recordDest
         );
-        console.log("loaded");
+        console.log('loaded');
         loadCount++;
       });
   }
@@ -159,7 +159,7 @@
   function handlePlayClick() {
     let fadeTime = 0.015;
     togglePlay();
-    if (player.state == "started") {
+    if (player.state == 'started') {
       clearTimeout(playTimer);
       playing = false;
       fadeOut(fadeTime);
@@ -171,7 +171,7 @@
 
         player.stop();
       }, fadeTime * 10000); // convert fadeTime to ms + 10^1 buffer for no pop
-    } else if (player.state == "stopped") {
+    } else if (player.state == 'stopped') {
       Tone.loaded().then(() => {
         player.start();
         playing = true;
@@ -269,33 +269,39 @@
 </script>
 
 <LibLoader
-  url="{[
+  url={[
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OpusMediaRecorder.umd.js',
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js',
-  ]}"
-  on:loaded="{initOpusRecorder}" />
+  ]}
+  on:loaded={initOpusRecorder}
+/>
 
-<audio bind:this="{audioRecord}" controls download class="hidden"></audio>
+<audio bind:this={audioRecord} controls download class="hidden" />
 
 <div
-  class="sm:container p-4 mx-auto justify-center items-center flex flex-col border-gray-800">
+  class="sm:container p-4 mx-auto justify-center items-center flex flex-col border-gray-800"
+>
   <h1 class="text-green-400 text-4xl mb-4 uppercase">Micro Looper</h1>
   <div
-    class="px-8 py-4 w-80 bg-white border-2 relative rounded border-indigo-700 ">
+    class="px-8 py-4 w-80 bg-white border-2 relative rounded border-indigo-700 "
+  >
     <button
       data-tooltip="Load a random sound"
-      on:click="{triggerRandom}"
+      on:click={triggerRandom}
       class="absolute outline-none focus:outline-none left-2 top-2"
-      ><Random class="transition hover:text-indigo-500" /></button>
+      ><Random class="transition hover:text-indigo-500" /></button
+    >
     <button
       data-tooltip="Reset parameters"
-      on:click="{reset}"
+      on:click={reset}
       class="absolute outline-none focus:outline-none right-9 top-2"
-      ><Reset class="transition hover:text-indigo-500" /></button>
+      ><Reset class="transition hover:text-indigo-500" /></button
+    >
     <button
-      data-tooltip="{mute ? 'Unmute' : 'Mute'}"
-      on:click="{handleMuteClick}"
-      class="absolute outline-none focus:outline-none right-2 top-2">
+      data-tooltip={mute ? 'Unmute' : 'Mute'}
+      on:click={handleMuteClick}
+      class="absolute outline-none focus:outline-none right-2 top-2"
+    >
       {#if mute || volume < -49.5}
         <VolumeOff class="transition text-gray-400" />
       {:else if volume > -20}
@@ -304,17 +310,20 @@
         <VolumeLow class="transition" />
       {/if}
     </button>
+
     <h2 class="text-l font-semibold text-center text-indigo-500 mb-4">
-      {$sound.name ? $sound.name.split(".")[0] : "No sound loaded"}
+      {$sound.name ? $sound.name.split('.')[0] : 'No sound loaded'}
     </h2>
+
     <div class="mx-auto flex items-center justify-around w-100 space-x-1">
       <button
         id="play"
-        data-tooltip="{playing ? 'Pause' : 'Play'}"
-        on:click="{handlePlayClick}"
+        data-tooltip={playing ? 'Pause' : 'Play'}
+        on:click={handlePlayClick}
         class="control-button disabled:bg-gray-200"
-        class:bg-green-100="{playing}"
-        disabled="{!$sound.name}">
+        class:bg-green-100={playing}
+        disabled={!$sound.name}
+      >
         {#if playing}
           <Pause />
         {:else}
@@ -323,21 +332,22 @@
       </button>
       <button
         data-tooltip="Record playback"
-        on:click="{handleRecordClick}"
+        on:click={handleRecordClick}
         class="control-button flex justify-center disabled:bg-gray-200"
-        disabled="{!$sound.name}"
+        disabled={!$sound.name}
         ><div class="w-6 h-6 flex justify-center items-center">
           <div
             class="w-5 h-5 bg-gray-800 rounded rounded-full"
-            class:bg-red-500="{recording}">
-          </div>
+            class:bg-red-500={recording}
+          />
         </div>
       </button>
       <button
         data-tooltip="Loop"
         class="control-button"
-        class:bg-green-100="{loop}"
-        on:click="{handleLoopClick}">
+        class:bg-green-100={loop}
+        on:click={handleLoopClick}
+      >
         <div class="loop-icon">
           <Loop />
         </div>
@@ -345,8 +355,9 @@
       <button
         data-tooltip="Reverse"
         class="control-button"
-        class:bg-green-100="{reverse}"
-        on:click="{handleReverseClick}">
+        class:bg-green-100={reverse}
+        on:click={handleReverseClick}
+      >
         <Reverse />
       </button>
     </div>
@@ -355,65 +366,73 @@
       <div class="flex flex-col items-center">
         <Knob
           id="playbackRate"
-          bind:value="{playbackRate}"
-          step="{0.01}"
-          min="{0.01}"
-          max="{2.0}"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          valueDisplayFunction="{(v) => Math.floor(v * 100) / 100}" />
+          bind:value={playbackRate}
+          step={0.01}
+          min={0.01}
+          max={2.0}
+          on:emitValue={throttle(handleValueChange, 100)}
+          valueDisplayFunction={(v) => Math.floor(v * 100) / 100}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="playbackRate">
+          for="playbackRate"
+        >
           Speed
         </label>
       </div>
       <div class="flex flex-col items-center">
         <Knob
           id="detune"
-          bind:value="{detune}"
-          step="{100}"
-          min="{-1200}"
-          max="{1200}"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          valueDisplayFunction="{(v) => {
+          bind:value={detune}
+          step={100}
+          min={-1200}
+          max={1200}
+          on:emitValue={throttle(handleValueChange, 100)}
+          valueDisplayFunction={(v) => {
             let num = Math.round(v / 100);
             return num > 0 ? `+${num}` : num;
-          }}" />
+          }}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="pitchInput">
+          for="pitchInput"
+        >
           Pitch
         </label>
       </div>
       <div class="flex flex-col items-center">
         <Knob
           id="grainSize"
-          bind:value="{grainSize}"
-          step="{0.0001}"
-          min="{0.0001}"
-          max="{0.2}"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          valueDisplayFunction="{(v) => Math.floor((v * 100000) / 200)}" />
+          bind:value={grainSize}
+          step={0.0001}
+          min={0.0001}
+          max={0.2}
+          on:emitValue={throttle(handleValueChange, 100)}
+          valueDisplayFunction={(v) => Math.floor((v * 100000) / 200)}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="grain">
+          for="grain"
+        >
           Grain
         </label>
       </div>
       <div class="flex flex-col items-center">
         <Knob
           id="volume"
-          bind:value="{volume}"
-          step="{0.01}"
-          min="{-50}"
-          max="{0}"
+          bind:value={volume}
+          step={0.01}
+          min={-50}
+          max={0}
           primaryColor="#A5B4FC"
           secondaryColor="#6366F1"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          valueDisplayFunction="{(v) => Math.round(v) * 2 + 100}" />
+          on:emitValue={throttle(handleValueChange, 100)}
+          valueDisplayFunction={(v) => Math.round(v) * 2 + 100}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="volume">
+          for="volume"
+        >
           Volume
         </label>
       </div>
@@ -422,54 +441,61 @@
       <div>
         <button
           id="ppBypass"
-          on:click="{toggleEffect}"
+          on:click={toggleEffect}
           class="text-xs uppercase font-bold transition"
-          class:text-green-400="{ppWet >= 0.01 &&
-            (ppTime >= 0.1 || ppFeedback >= 0.01)}">D E L A Y</button>
+          class:text-green-400={ppWet >= 0.01 &&
+            (ppTime >= 0.1 || ppFeedback >= 0.01)}>D E L A Y</button
+        >
       </div>
       <div class="flex flex-col items-center">
         <Knob
           id="ppTime"
-          bind:value="{ppTime}"
-          step="{0.01}"
-          min="{0}"
-          max="{5}"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          valueDisplayFunction="{(v) => Math.floor(v * 20)}" />
+          bind:value={ppTime}
+          step={0.01}
+          min={0}
+          max={5}
+          on:emitValue={throttle(handleValueChange, 100)}
+          valueDisplayFunction={(v) => Math.floor(v * 20)}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="ppTime">
+          for="ppTime"
+        >
           Time
         </label>
       </div>
       <div class="flex flex-col items-center">
         <Knob
           id="ppFeedback"
-          bind:value="{ppFeedback}"
-          step="{0.01}"
-          min="{0}"
-          max="{1}"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          valueDisplayFunction="{(v) => Math.floor(v * 100)}" />
+          bind:value={ppFeedback}
+          step={0.01}
+          min={0}
+          max={1}
+          on:emitValue={throttle(handleValueChange, 100)}
+          valueDisplayFunction={(v) => Math.floor(v * 100)}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="ppFeedback">
+          for="ppFeedback"
+        >
           Feedback
         </label>
       </div>
       <div class="flex flex-col items-center">
         <Knob
           id="ppWet"
-          bind:value="{ppWet}"
-          step="{0.001}"
-          min="{0}"
-          max="{1}"
-          on:emitValue="{throttle(handleValueChange, 100)}"
-          on:input="{toggleEffect}"
-          valueDisplayFunction="{(v) => Math.floor(v * 100)}" />
+          bind:value={ppWet}
+          step={0.001}
+          min={0}
+          max={1}
+          on:emitValue={throttle(handleValueChange, 100)}
+          on:input={toggleEffect}
+          valueDisplayFunction={(v) => Math.floor(v * 100)}
+        />
         <label
           class="text-xs text-center font-bold text-indigo-600"
-          for="ppWet">
+          for="ppWet"
+        >
           Wet
         </label>
       </div>
