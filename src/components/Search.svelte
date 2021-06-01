@@ -3,7 +3,7 @@
   import Loader from "./Loader.svelte";
   import { sound, random } from "../store";
 
-  const PARAMS = `name,username,id,url,description,images,duration,download,previews,type,normalized=1`;
+  const PARAMS = `name,username,id,url,images,duration,previews,type,normalized=1`;
   let search = "";
   let results = fetchData("cello");
 
@@ -21,13 +21,13 @@
     if (randomPage) {
       query += randomPage;
     }
-    console.log(query);
+    // console.log(query);
     try {
       const res = await fetch(
         `/.netlify/functions/token-hider?query=${query}&fields=${PARAMS}`
       );
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       return data;
     } catch (err) {
       return console.error(err);
@@ -68,10 +68,7 @@
 
   async function getRandomSound() {
     try {
-      // const randomResults = await handleRandomClick();
-      // console.log(randomResults)
       const randomSound = await pickRandom();
-      console.log(randomSound)
       setRandom(randomSound);
       random.set(false);
     } catch (err) {

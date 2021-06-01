@@ -283,7 +283,7 @@
 >
   <h1 class="text-green-400 text-4xl mb-4 uppercase">Micro Looper</h1>
   <div
-    class="px-8 py-4 w-80 bg-white border-2 relative rounded border-indigo-700 "
+    class="px-8 pb-4 pt-10 w-80 bg-white border-2 relative rounded border-indigo-700 "
   >
     <button
       data-tooltip="Load a random sound"
@@ -310,10 +310,20 @@
         <VolumeLow class="transition" />
       {/if}
     </button>
-
-    <h2 class="text-l font-semibold text-center text-indigo-500 mb-4">
-      {$sound.name ? $sound.name.split('.')[0] : 'No sound loaded'}
-    </h2>
+    <div class="w-full mb-4 overflow-hidden p-1 border-gray-800 bg-indigo-50 rounded border mx-auto">
+    <div
+      class="w-full"
+      style="padding-left: 50%;"
+    >
+      <div class="sound-title-wrapper">
+        <h2
+          class="text-l font-semibold inline-block sound-title text-indigo-500"
+        >
+          {$sound.name ? $sound.name.split('.')[0] : 'No sound loaded'}
+        </h2>
+      </div>
+    </div>
+  </div>
 
     <div class="mx-auto flex items-center justify-around w-100 space-x-1">
       <button
@@ -506,6 +516,34 @@
 <style>
   .control-button {
     @apply border-2 border-indigo-600 rounded p-2 relative active:border-indigo-700 focus:border-indigo-700 focus:outline-none;
+  }
+
+  @keyframes ticker {
+    0% {
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      /* visibility: visible; */
+    }
+
+    100% {
+      -webkit-transform: translate3d(-100%, 0, 0);
+      transform: translate3d(-100%, 0, 0);
+    }
+  }
+
+  .sound-title-wrapper {
+    /* padding-right: 100%; */
+    /* width: 100%; */
+    display: inline-block;
+    white-space: nowrap;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-name: ticker;
+    animation-name: ticker;
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
   }
 
 </style>
