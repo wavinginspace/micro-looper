@@ -6,6 +6,7 @@
   import Knob from './Knob.svelte';
   import { sound, random } from '../store';
   import { afterUpdate } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
 
   import Play from 'carbon-icons-svelte/lib/PlayFilledAlt24';
   import Pause from 'carbon-icons-svelte/lib/PauseFilled24';
@@ -37,11 +38,11 @@
       OggOpusEncoderWasmPath:
         'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm',
       WebMOpusEncoderWasmPath:
-        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm',
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm'
     };
 
     let options = {
-      mimeType: 'audio/wav',
+      mimeType: 'audio/wav'
     };
     // replace native MediaRecorder with OpusMediaRecorder
     // @ts-ignore
@@ -265,13 +266,12 @@
     ppBypass = false;
     mute = false;
   }
-
 </script>
 
 <LibLoader
   url={[
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OpusMediaRecorder.umd.js',
-    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js',
+    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js'
   ]}
   on:loaded={initOpusRecorder}
 />
@@ -289,14 +289,16 @@
       data-tooltip="Load a random sound"
       on:click={triggerRandom}
       class="absolute outline-none focus:outline-none left-2 top-2"
-      ><Random class="transition hover:text-indigo-500" /></button
     >
+      <Random class="transition hover:text-indigo-500" />
+    </button>
     <button
       data-tooltip="Reset parameters"
       on:click={reset}
       class="absolute outline-none focus:outline-none right-9 top-2"
-      ><Reset class="transition hover:text-indigo-500" /></button
     >
+      <Reset class="transition hover:text-indigo-500" />
+    </button>
     <button
       data-tooltip={mute ? 'Unmute' : 'Mute'}
       on:click={handleMuteClick}
@@ -310,20 +312,29 @@
         <VolumeLow class="transition" />
       {/if}
     </button>
-    <div class="w-full mb-4 overflow-hidden p-1 border-gray-800 bg-indigo-50 rounded border mx-auto">
     <div
-      class="w-full"
-      style="padding-left: 50%;"
+      class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded bg-indigo-50"
     >
-      <div class="sound-title-wrapper">
-        <h2
-          class="text-l font-semibold inline-block sound-title text-indigo-500"
-        >
-          {$sound.name ? $sound.name.split('.')[0] : 'No sound loaded'}
+      {#if $sound.name}
+        {#each [$sound.name] as soundName (soundName)}
+          <h2
+            data-tooltip={soundName.split('.')[0]}
+            class="sound-title text-l font-semibold relative text-indigo-500"
+            in:fly={{ y: -200, duration: 2000 }}
+            out:fade
+          >
+            <!-- {console.log(soundName)} -->
+            {soundName.length > 30
+              ? `${soundName.split('.')[0].substring(0, 28)}...`
+              : soundName.split('.')[0]}
+          </h2>
+        {/each}
+      {:else}
+        <h2 class="text-l font-semibold text-indigo-500">
+          No sound loaded yet
         </h2>
-      </div>
+      {/if}
     </div>
-  </div>
 
     <div class="mx-auto flex items-center justify-around w-100 space-x-1">
       <button
@@ -345,7 +356,8 @@
         on:click={handleRecordClick}
         class="control-button flex justify-center disabled:bg-gray-200"
         disabled={!$sound.name}
-        ><div class="w-6 h-6 flex justify-center items-center">
+      >
+        <div class="w-6 h-6 flex justify-center items-center">
           <div
             class="w-5 h-5 bg-gray-800 rounded rounded-full"
             class:bg-red-500={recording}
@@ -454,8 +466,10 @@
           on:click={toggleEffect}
           class="text-xs uppercase font-bold transition"
           class:text-green-400={ppWet >= 0.01 &&
-            (ppTime >= 0.1 || ppFeedback >= 0.01)}>D E L A Y</button
+            (ppTime >= 0.1 || ppFeedback >= 0.01)}
         >
+          D E L A Y
+        </button>
       </div>
       <div class="flex flex-col items-center">
         <Knob
@@ -518,32 +532,14 @@
     @apply border-2 border-indigo-600 rounded p-2 relative active:border-indigo-700 focus:border-indigo-700 focus:outline-none;
   }
 
-  @keyframes ticker {
-    0% {
-      -webkit-transform: translate3d(0, 0, 0);
-      transform: translate3d(0, 0, 0);
-      /* visibility: visible; */
-    }
-
-    100% {
-      -webkit-transform: translate3d(-100%, 0, 0);
-      transform: translate3d(-100%, 0, 0);
-    }
-  }
-
   .sound-title-wrapper {
-    /* padding-right: 100%; */
-    /* width: 100%; */
-    display: inline-block;
+    text-align: center;
+    overflow: hidden;
+    height: 2.6rem;
     white-space: nowrap;
-    -webkit-animation-iteration-count: infinite;
-    animation-iteration-count: infinite;
-    -webkit-animation-timing-function: linear;
-    animation-timing-function: linear;
-    -webkit-animation-name: ticker;
-    animation-name: ticker;
-    -webkit-animation-duration: 5s;
-    animation-duration: 5s;
   }
 
+  .sound-title {
+    margin: 0;
+  }
 </style>
