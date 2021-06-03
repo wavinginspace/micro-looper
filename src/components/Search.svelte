@@ -5,7 +5,8 @@
 
   const PARAMS = `name,username,id,url,images,duration,previews,type,normalized=1`;
   let search = "";
-  let results = fetchData("cello");
+  // let results = fetchData("cello");
+  let results;
 
   const debounce = (callback, wait) => {
     let timeoutId = null;
@@ -75,6 +76,8 @@
       console.error(err);
     }
   }
+
+ handleRandomClick();
 
   $: if ($random) getRandomSound();
 
