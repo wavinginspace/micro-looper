@@ -1,4 +1,6 @@
-Space Looper is an app for generating infinite sounds.
+![Space](src/assets/microlooper.png)
+
+Micro Looper is an app for generating infinite sounds.
 
 To use, simply search for sounds and click on them to load into the player, where you can loop/reverse and manipulate the speed, pitch, grain and delay of the sound. 
 
