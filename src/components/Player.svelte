@@ -319,7 +319,6 @@
       {#if $sound.name}
         {#each [$sound.name] as soundName (soundName)}
           <h2
-            data-tooltip={soundName.split('.')[0]}
             class="sound-title text-l font-semibold relative text-indigo-500"
             in:fly={{ y: -200, duration: 2000 }}
             out:fade
