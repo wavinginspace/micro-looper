@@ -6,3 +6,14 @@ export const sound = writable({
 });
 
 export let random = writable(false);
+
+export function modalOpen(initial) {
+  const isOpen = writable(initial);
+  const { set, update } = isOpen;
+  return {
+    isOpen,
+    open: () => set(true),
+    close: () => set(false),
+    toggle: () => update((n) => !n),
+  };
+}

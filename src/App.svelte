@@ -1,9 +1,10 @@
 <script>
   import Player from "./components/Player.svelte";
   import Search from "./components/Search.svelte";
+  import Nav from "./components/Nav.svelte"
 
 </script>
-
+<Nav/>
 <Player />
 <Search />
 
