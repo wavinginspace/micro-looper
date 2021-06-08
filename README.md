@@ -9,11 +9,11 @@ Click the Random Sound icon on the top left of the player to load a random sound
 
 Click the Random Page button to load a random page of results from FreeSound.
 
-Please create an issue if you encounter any problems.
-
 Upcoming features:
 
 - Loop in/out control
 - Filters
 - More audio visualization
 - Dark mode
+
+Please create an issue if you encounter any problems.
