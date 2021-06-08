@@ -27,10 +27,10 @@
           for generating infinite sounds.
         </p>
         <p>
-          To use, simply search for samples via FreeSound and click on a result
-          to load into the player, where you can loop, reverse, manipulate the
-          speed, pitch, grain, delay speed and delay feedback amount of the
-          current loaded sample.
+          Search for samples via FreeSound and click on a result to load into
+          the player, where you can loop, reverse, manipulate the speed, pitch,
+          grain, delay speed and delay feedback amount of the current loaded
+          sample.
         </p>
 
         <ul>
