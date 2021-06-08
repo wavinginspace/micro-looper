@@ -38,11 +38,11 @@
       OggOpusEncoderWasmPath:
         'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm',
       WebMOpusEncoderWasmPath:
-        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm'
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm',
     };
 
     let options = {
-      mimeType: 'audio/wav'
+      mimeType: 'audio/wav',
     };
     // replace native MediaRecorder with OpusMediaRecorder
     // @ts-ignore
@@ -266,12 +266,13 @@
     ppBypass = false;
     mute = false;
   }
+
 </script>
 
 <LibLoader
   url={[
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OpusMediaRecorder.umd.js',
-    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js'
+    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js',
   ]}
   on:loaded={initOpusRecorder}
 />
@@ -330,7 +331,7 @@
           </h2>
         {/each}
       {:else}
-        <h2 class="text-l font-semibold text-indigo-500">
+        <h2 class="text-l font-semibold text-indigo-500" out:fade>
           No sound loaded yet
         </h2>
       {/if}
@@ -542,4 +543,5 @@
   .sound-title {
     margin: 0;
   }
+
 </style>
