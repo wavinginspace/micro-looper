@@ -17,6 +17,7 @@
   import VolumeLow from 'carbon-icons-svelte/lib/VolumeDownFilled20';
   import VolumeOff from 'carbon-icons-svelte/lib/VolumeMuteFilled20';
   import Random from 'carbon-icons-svelte/lib/Network_420';
+  import { deepEquals } from 'tone/build/esm/core/util/Defaults';
 
   let player = new Tone.GrainPlayer($sound.sound);
   const gainNode = new Tone.Gain();
@@ -38,11 +39,11 @@
       OggOpusEncoderWasmPath:
         'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm',
       WebMOpusEncoderWasmPath:
-        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm',
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm'
     };
 
     let options = {
-      mimeType: 'audio/wav',
+      mimeType: 'audio/wav'
     };
     // replace native MediaRecorder with OpusMediaRecorder
     // @ts-ignore
@@ -72,6 +73,10 @@
   let audioRecord; // recording audio element
   let mute = false;
   let loop = false;
+  let loopStartPos = 0;
+  let loopEndPos = 250;
+  let loopStartTime;
+  let loopEndTime;
   let reverse = false;
   let gain = 1;
   let volume = -5.5;
@@ -106,6 +111,9 @@
         console.log('loaded');
         loadCount++;
       });
+    console.log(player.buffer.duration);
+    loopStartPos = 0;
+    loopEndPos = 250;
   }
 
   // listen for new sound file from store, load player
@@ -239,6 +247,31 @@
     }
   }
 
+  function handleLoopPositionClick(e) {
+    if (!$sound.name) return;
+    const leftDiv = document.querySelector('.loop-div__left');
+    const rightDiv = document.querySelector('.loop-div__right');
+    let { offsetX } = e;
+    // console.log("offsetX: ", offsetX);
+    // console.log("loopStartPos: ", loopStartPos);
+    // console.log("loopEndPos: ", loopEndPos);
+    // console.log("loopEndPos: ", loopEndPos);
+    // console.log("offsetX - loopStartPos: ", offsetX - loopStartPos)
+    // console.log("offsetX - loopEndPos: ", offsetX - loopEndPos)
+    // console.log("offsetX - loopEndPos: ", offsetX - loopEndPos)
+    if (
+      offsetX >= 0 &&
+      offsetX < loopEndPos &&
+      offsetX - loopStartPos < loopEndPos - offsetX 
+    ) {
+      loopStartPos = offsetX;
+      leftDiv.style.width = `${e.offsetX}px`;
+    } else if (offsetX > loopStartPos && offsetX <= 250) {
+      loopEndPos = offsetX;
+      rightDiv.style.width = `${250 - e.offsetX}px`;
+    }
+  }
+
   // TODO refactor this to be general use for more fx, if adding more
 
   function toggleEffect() {
@@ -266,13 +299,12 @@
     ppBypass = false;
     mute = false;
   }
-
 </script>
 
 <LibLoader
   url={[
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OpusMediaRecorder.umd.js',
-    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js',
+    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js'
   ]}
   on:loaded={initOpusRecorder}
 />
@@ -314,13 +346,20 @@
       {/if}
     </button>
     <div
-      class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded"
+      class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
       style="background-image: url('{$sound.image}'); background-repeat: round;"
+      on:click={handleLoopPositionClick}
     >
+      <div
+        class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
+      >
+        <div class="loop-div loop-div__left pointer-events-none" />
+        <div class="loop-div loop-div__right pointer-events-none" />
+      </div>
       {#if $sound.name}
         {#each [$sound.name] as soundName (soundName)}
           <h2
-            class="sound-title text-l font-semibold relative text-indigo-500"
+            class="sound-title text-l font-semibold relative text-indigo-500 cursor-default pointer-events-none"
             in:fly={{ y: -200, duration: 2000 }}
             out:fade
           >
@@ -331,7 +370,7 @@
           </h2>
         {/each}
       {:else}
-        <h2 class="text-l font-semibold text-indigo-500" out:fade>
+        <h2 class="text-l font-semibold text-indigo-500 relative" out:fade>
           No sound loaded yet
         </h2>
       {/if}
@@ -544,4 +583,15 @@
     margin: 0;
   }
 
+  .loop-div {
+    @apply h-full bg-white absolute top-0;
+    width: 0;
+    &__left {
+      left: 0;
+    }
+    &__right {
+      right: 0;
+    }
+    background-blend-mode: luminosity;
+  }
 </style>
