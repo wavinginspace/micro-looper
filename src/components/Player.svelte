@@ -17,7 +17,6 @@
   import VolumeLow from 'carbon-icons-svelte/lib/VolumeDownFilled20';
   import VolumeOff from 'carbon-icons-svelte/lib/VolumeMuteFilled20';
   import Random from 'carbon-icons-svelte/lib/Network_420';
-  import { deepEquals } from 'tone/build/esm/core/util/Defaults';
 
   let player = new Tone.GrainPlayer($sound.sound);
   const gainNode = new Tone.Gain();
@@ -75,8 +74,8 @@
   let loop = false;
   let loopStartPos = 0;
   let loopEndPos = 250;
-  let loopStartTime;
-  let loopEndTime;
+  let loopStartTime = 0;
+  let loopEndTime = 0;
   let reverse = false;
   let gain = 1;
   let volume = -5.5;
@@ -157,6 +156,7 @@
     player.detune = detune;
     player.playbackRate = playbackRate;
     player.grainSize = grainSize;
+    console.log(player)
   });
 
   function handleValueChange(e) {
@@ -247,27 +247,30 @@
     }
   }
 
+ // map offsetX to buffer.duration time
+
+  function mapRange(value, a, b, c, d) {
+    value = (value - a) / (b - a);
+    return c + value * (d - c);
+  }
+
   function handleLoopPositionClick(e) {
     if (!$sound.name) return;
     const leftDiv = document.querySelector('.loop-div__left');
     const rightDiv = document.querySelector('.loop-div__right');
     let { offsetX } = e;
-    // console.log("offsetX: ", offsetX);
-    // console.log("loopStartPos: ", loopStartPos);
-    // console.log("loopEndPos: ", loopEndPos);
-    // console.log("loopEndPos: ", loopEndPos);
-    // console.log("offsetX - loopStartPos: ", offsetX - loopStartPos)
-    // console.log("offsetX - loopEndPos: ", offsetX - loopEndPos)
-    // console.log("offsetX - loopEndPos: ", offsetX - loopEndPos)
+    let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
     if (
       offsetX >= 0 &&
       offsetX < loopEndPos &&
-      offsetX - loopStartPos < loopEndPos - offsetX 
+      offsetX - loopStartPos < loopEndPos - offsetX
     ) {
       loopStartPos = offsetX;
+      player.loopStart = loopTime;
       leftDiv.style.width = `${e.offsetX}px`;
     } else if (offsetX > loopStartPos && offsetX <= 250) {
       loopEndPos = offsetX;
+      player.loopEnd = loopTime;
       rightDiv.style.width = `${250 - e.offsetX}px`;
     }
   }
