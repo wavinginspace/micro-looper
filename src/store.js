@@ -3,6 +3,7 @@ import { writable } from 'svelte/store';
 export const sound = writable({
   sound: '',
   name: '',
+  image: ''
 });
 
 export let random = writable(false);

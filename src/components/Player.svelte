@@ -314,7 +314,8 @@
       {/if}
     </button>
     <div
-      class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded bg-indigo-50"
+      class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded"
+      style="background-image: url('{$sound.image}'); background-repeat: round;"
     >
       {#if $sound.name}
         {#each [$sound.name] as soundName (soundName)}

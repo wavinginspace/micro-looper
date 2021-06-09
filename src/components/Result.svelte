@@ -1,15 +1,15 @@
 <script>
-  import PlayFilled from "carbon-icons-svelte/lib/PlayFilled24";
-  import PauseFilled from "carbon-icons-svelte/lib/PauseFilled24";
-  import { sound } from "../store";
-  import { onMount } from "svelte";
+  import PlayFilled from 'carbon-icons-svelte/lib/PlayFilled24';
+  import PauseFilled from 'carbon-icons-svelte/lib/PauseFilled24';
+  import { sound } from '../store';
+  import { onMount } from 'svelte';
 
   export let result;
 
   let paused = true;
   let innerSize = 0;
   let timer;
-  let time = "";
+  let time = '';
   function printTime() {
     let hrs = ~~(result.duration / 3600);
     let mins = ~~((result.duration % 3600) / 60);
@@ -17,12 +17,11 @@
     // Output like "1:01" or "4:03:59" or "123:03:59"
 
     if (hrs > 0) {
-      time += "" + hrs + ":" + (mins < 10 ? "0" : "");
+      time += '' + hrs + ':' + (mins < 10 ? '0' : '');
     }
 
-    time += "" + mins + ":" + (secs < 10 ? "0" : "");
-    time += "" + secs;
-    console.log;
+    time += '' + mins + ':' + (secs < 10 ? '0' : '');
+    time += '' + secs;
     return time;
   }
 
@@ -30,12 +29,11 @@
     printTime();
   });
 
-  // TODO fix bug where play animation keeps going even on next or random page
-
   function loadSound() {
     sound.set({
-      sound: result.previews["preview-hq-ogg"],
+      sound: result.previews['preview-hq-ogg'],
       name: result.name,
+      image: result.images.waveform_bw_m,
     });
     paused = true;
   }
@@ -82,15 +80,17 @@
   class="result-list-item-wrapper bg-white relative hover:shadow-lg border-gray-800 border"
   style="background-image: url('{result.images
     .waveform_bw_m}'); background-repeat: round;"
-  on:click="{loadSound}">
-  <div class="progress-overlay" style="width: {innerSize}%;"></div>
-  <div class="waveform-overlay"></div>
+  on:click={loadSound}
+>
+  <div class="progress-overlay" style="width: {innerSize}%;" />
+  <div class="waveform-overlay" />
 
   <li class="result-list-item relative pr-7 ">
     <div class="inline-flex w-full items-center justify-between">
       <span
-        class="sound-link text-indigo-600 font-transition text-xs  font-bold mr-4 break-words truncate">
-        {result.name.split(".")[0]}
+        class="sound-link text-indigo-600 font-transition text-xs  font-bold mr-4 break-words truncate"
+      >
+        {result.name.split('.')[0]}
         <!-- {result.name.length > 24
             ? result.name.substring(0, 21) + '...'
             : result.name.split('.')[0]} -->
@@ -100,18 +100,20 @@
     <!-- <br /> -->
     <!-- <a class="sound-download-link">DL</a> -->
     <audio
-      id="{`audio${result.id}`}"
+      id={`audio${result.id}`}
       class="sound-preview-audio"
-      src="{result.previews['preview-hq-mp3']}"
+      src={result.previews['preview-hq-mp3']}
       controls
       type="audio/mp3"
       preload="auto"
-      bind:paused>
+      bind:paused
+    >
       <track kind="captions" />
     </audio>
     <div
       class="preview-icon absolute top-0 right-0"
-      on:click|stopPropagation="{handlePreviewClick}">
+      on:click|stopPropagation={handlePreviewClick}
+    >
       {#if paused}
         <PlayFilled class="preview-icon" />
       {:else}
