@@ -5,7 +5,7 @@
   import LibLoader from './LibLoader.svelte';
   import Knob from './Knob.svelte';
   import { sound, random } from '../store';
-  import { afterUpdate } from 'svelte';
+  import { onMount, afterUpdate } from 'svelte';
   import { fade, fly } from 'svelte/transition';
 
   import Play from 'carbon-icons-svelte/lib/PlayFilledAlt24';
@@ -65,6 +65,12 @@
       window.URL.revokeObjectURL(audioRecord.src);
     };
   }
+  let loopStartDiv;
+  let loopEndDiv;
+  let loopStartPos = 0;
+  let loopEndPos = 250;
+  let loopStartTime = 0;
+  let loopEndTime = 0;
 
   // TODO refactor this into object ??
   let playing = player?.state === 'started';
@@ -72,10 +78,6 @@
   let audioRecord; // recording audio element
   let mute = false;
   let loop = false;
-  let loopStartPos = 0;
-  let loopEndPos = 250;
-  let loopStartTime = 0;
-  let loopEndTime = 0;
   let reverse = false;
   let gain = 1;
   let volume = -5.5;
@@ -110,7 +112,9 @@
         console.log('loaded');
         loadCount++;
       });
-    console.log(player.buffer.duration);
+    // refactor this into new setLoopDiv function
+    loopStartDiv.style.width = 0;
+    loopEndDiv.style.width = 0;
     loopStartPos = 0;
     loopEndPos = 250;
   }
@@ -143,6 +147,11 @@
     player.volume.exponentialRampToValueAtTime(volume, Tone.now() + fadeTime);
   }
 
+  onMount(() => {
+    loopStartDiv = document.querySelector('.loop-div__left');
+    loopEndDiv = document.querySelector('.loop-div__right');
+  });
+
   afterUpdate(() => {
     let now = Tone.now();
     pingPong.feedback.setTargetAtTime(ppFeedback, now, 0.3);
@@ -156,7 +165,6 @@
     player.detune = detune;
     player.playbackRate = playbackRate;
     player.grainSize = grainSize;
-    console.log(player)
   });
 
   function handleValueChange(e) {
@@ -247,8 +255,7 @@
     }
   }
 
- // map offsetX to buffer.duration time
-
+  // map offsetX to buffer.duration time
   function mapRange(value, a, b, c, d) {
     value = (value - a) / (b - a);
     return c + value * (d - c);
@@ -256,10 +263,9 @@
 
   function handleLoopPositionClick(e) {
     if (!$sound.name) return;
-    const leftDiv = document.querySelector('.loop-div__left');
-    const rightDiv = document.querySelector('.loop-div__right');
     let { offsetX } = e;
     let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
+
     if (
       offsetX >= 0 &&
       offsetX < loopEndPos &&
@@ -267,11 +273,11 @@
     ) {
       loopStartPos = offsetX;
       player.loopStart = loopTime;
-      leftDiv.style.width = `${e.offsetX}px`;
+      loopStartDiv.style.width = `${e.offsetX}px`;
     } else if (offsetX > loopStartPos && offsetX <= 250) {
       loopEndPos = offsetX;
       player.loopEnd = loopTime;
-      rightDiv.style.width = `${250 - e.offsetX}px`;
+      loopEndDiv.style.width = `${250 - e.offsetX}px`;
     }
   }
 
@@ -508,10 +514,11 @@
           id="ppBypass"
           on:click={toggleEffect}
           class="text-xs uppercase font-bold transition"
+          style="letter-spacing: .25em;"
           class:text-green-400={ppWet >= 0.01 &&
             (ppTime >= 0.1 || ppFeedback >= 0.01)}
         >
-          D E L A Y
+          Delay
         </button>
       </div>
       <div class="flex flex-col items-center">

@@ -1,23 +1,26 @@
 module.exports = {
-  mode: "jit",
+  mode: 'jit',
   purge: {
-    content: ["./src/**/*.{html,js,svelte,ts}"],
+    content: ['./src/**/*.{html,js,svelte,ts}'],
     options: {
       defaultExtractor: (content) => [
         ...(content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || []),
-        ...(content.match(/(?<=class:)[^=>\/\s]*/g) || []),
+        ...(content.match(/(?<=class:)[^=>\/\s]*/g) || [])
       ],
-      safelist: [/^svelte-[\d\w]+$/],
+      safelist: [/^svelte-[\d\w]+$/]
     },
     theme: {
-      extend: {},
+      letterSpacing: {
+        widest: '2rem'
+      },
+      extend: {}
     },
     variants: {
       extend: {
         border: ['active', 'focus'],
-        borderColor: ["active", "focus", "focus-visible"],
-      },
+        borderColor: ['active', 'focus', 'focus-visible']
+      }
     },
-    plugins: [],
-  },
+    plugins: []
+  }
 };
