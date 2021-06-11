@@ -65,10 +65,14 @@
       window.URL.revokeObjectURL(audioRecord.src);
     };
   }
+
   let loopStartDiv;
   let loopEndDiv;
   let loopStartPos = 0;
   let loopEndPos = 250;
+  let loopTimeMarker;
+  let playheadPos = 0;
+  let playheadTimer;
 
   // TODO refactor this into object ??
   let playing = player?.state === 'started';
@@ -110,7 +114,11 @@
         console.log('loaded');
         loadCount++;
       });
-    // refactor this into new setLoopDiv function
+    resetLoopDivs();
+    player.loopEnd = player.buffer.duration;
+  }
+
+  function resetLoopDivs() {
     loopStartDiv.style.width = 0;
     loopEndDiv.style.width = 0;
     loopStartPos = 0;
@@ -145,7 +153,6 @@
     player.volume.exponentialRampToValueAtTime(volume, Tone.now() + fadeTime);
   }
 
-  const BORDER_SIZE = 4;
   let mousePosition;
 
   function resize(e) {
@@ -160,7 +167,6 @@
     }
   }
 
-  // map offsetX to buffer.duration time
   function mapRange(value, a, b, c, d) {
     value = (value - a) / (b - a);
     return c + value * (d - c);
@@ -170,27 +176,24 @@
     if (!$sound.name) return;
     let { id } = e.target;
 
-    console.log('e.offsetX: ', e.offsetX);
-    if (e.offsetX >= BORDER_SIZE - 4 && id === 'loopStart') {
+    if (e.offsetX >= 0 && id === 'loopStart') {
       mousePosition = e.x;
-      console.log('mousePosition:', mousePosition);
       document.addEventListener('mousemove', resize, false);
     } else if (e.offsetX <= 250 && id === 'loopEnd') {
       mousePosition = e.x;
-      console.log('mousePosition:', mousePosition);
       document.addEventListener('mousemove', resize, false);
     }
   }
 
   function setLoopPos(e) {
     document.removeEventListener('mousemove', resize, false);
+    const { id } = e.target;
     if (!$sound.name) return;
-    let loopTimeMarker;
 
-    if (e.target.id === 'loopStart') {
+    if (id === 'loopStart') {
       loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
       player.loopStart = loopTimeMarker;
-    } else {
+    } else if (id === 'loopEnd') {
       loopTimeMarker = mapRange(
         e.target.getBoundingClientRect().width,
         0,
@@ -200,6 +203,17 @@
       );
       player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
     }
+
+    // UNCOMMENT THIS TO START PLAYHEAD
+    // if (id === 'loopStart' || id === 'loopEnd') {
+    //   // cancel animation request
+    //   animatePlayhead(true);
+    //   clearInterval(playheadTimer);
+    //   playheadTimer = setInterval(() => {
+    //     animatePlayhead();
+    //     console.log('now I run');
+    //   }, (player.loopEnd - player.loopStart) * 1000);
+    // }
   }
 
   document.addEventListener('mouseup', function (e) {
@@ -214,18 +228,21 @@
 
   afterUpdate(() => {
     let now = Tone.now();
-    pingPong.feedback.setTargetAtTime(ppFeedback, now, 0.3);
-    pingPong.delayTime.setTargetAtTime(ppTime, now, 0.3);
-    pingPong.wet.setTargetAtTime(ppWet, now, 0.3);
+    let fadeTime = 0.3;
 
-    gainNode.gain.setTargetAtTime(gain, now, 0.3);
+    // Tone.loaded().then(() => {
+    //   player.loopEnd = Math.min(player.buffer.duration, player.loopEnd);
+    // });
 
-    player.volume.setTargetAtTime(volume, now, 0.3);
+    pingPong.feedback.setTargetAtTime(ppFeedback, now, fadeTime);
+    pingPong.delayTime.setTargetAtTime(ppTime, now, fadeTime);
+    pingPong.wet.setTargetAtTime(ppWet, now, fadeTime);
+    gainNode.gain.setTargetAtTime(gain, now, fadeTime);
+    player.volume.setTargetAtTime(volume, now, fadeTime);
     player.loop = loop;
     player.detune = detune;
     player.playbackRate = playbackRate;
     player.grainSize = grainSize;
-    console.log(player);
   });
 
   function handleValueChange(e) {
@@ -234,11 +251,50 @@
     id = value;
   }
 
+  function animatePlayhead(cancel) {
+    let start;
+    let reqId;
+
+    if (cancel) {
+      cancelAnimationFrame(reqId);
+    }
+
+    if (cancel) return;
+
+    function step(timestamp) {
+      if (start === undefined) start = timestamp;
+      let elapsed = timestamp - start;
+      playheadPos = Math.min(
+        mapRange(
+          elapsed,
+          0,
+          (player.loopEnd - player.loopStart) * 1000,
+          0,
+          250 - parseInt(loopEndDiv.style.width)
+        ),
+        250
+      );
+
+      if (elapsed < (player.loopEnd - player.loopStart) * 1000) {
+        // Stop the animation after buffer duration
+        requestAnimationFrame(step);
+      } else {
+        start = 0;
+      }
+    }
+
+    reqId = requestAnimationFrame(step);
+  }
+
   function handlePlayClick() {
     let fadeTime = 0.015;
     togglePlay();
     if (player.state == 'started') {
       clearTimeout(playTimer);
+      clearInterval(playheadTimer);
+      // UNCOMMENT THIS FOR PLAYHEAD ANIMATION (cancels previous animation request)
+      // animatePlayhead(true);
+      playheadPos = 0;
       playing = false;
       fadeOut(fadeTime);
 
@@ -246,20 +302,30 @@
         if (recording) {
           ppWet = 0;
         }
-
         player.stop();
       }, fadeTime * 10000); // convert fadeTime to ms + 10^1 buffer for no pop
     } else if (player.state == 'stopped') {
       Tone.loaded().then(() => {
         player.start();
+        player.loopEnd = player.buffer.duration;
         playing = true;
         fadeIn(fadeTime);
+        // UNCOMMENT THIS TO START PLAYHEAD ANIMATION
+        // animatePlayhead();
+
+        playTimer = setTimeout(() => {
+          if (!loop) {
+            togglePlay();
+            clearInterval(playheadTimer);
+          }
+        }, 1000 * player.buffer.duration);
+
+        // UNCOMMENT THIS TO LOOP PLAYHEAD
+        // playheadTimer = setInterval(() => {
+        //   animatePlayhead();
+        //   // console.log('hehe I ran');
+        // }, (player.loopEnd - player.loopStart) * 1000);
       });
-      playTimer = setTimeout(() => {
-        if (!loop) {
-          togglePlay();
-        }
-      }, 1000 * player.buffer.duration);
     }
   }
 
@@ -316,10 +382,14 @@
     }
   }
 
+  // TODO - KEEP OR DELETE?
+
   // function handleLoopPositionClick(e) {
   //   if (!$sound.name) return;
   //   let { offsetX } = e;
   //   let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
+
+  //   console.log(loopTime);
 
   //   if (
   //     offsetX >= 0 &&
@@ -413,6 +483,7 @@
         <VolumeLow class="transition" />
       {/if}
     </button>
+    <!-- TODO - REFACTOR THIS INTO NEW COMPONENT -->
     <div
       class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
       style="background-image: url('{$sound.image}'); background-repeat: round;"
@@ -420,14 +491,15 @@
       <div
         class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
       >
+        <div class="playhead" style="left: {playheadPos}px" />
         <div
           id="loopStart"
-          class="loop-div loop-div__left"
+          class="loop-div loop-div__left z-10"
           on:mousedown={handleLoopDrag}
         />
         <div
           id="loopEnd"
-          class="loop-div loop-div__right"
+          class="loop-div loop-div__right z-10"
           on:mousedown={handleLoopDrag}
         />
       </div>
@@ -438,7 +510,6 @@
             in:fly={{ y: -200, duration: 2000 }}
             out:fade
           >
-            <!-- {console.log(soundName)} -->
             {soundName.length > 30
               ? `${soundName.split('.')[0].substring(0, 28)}...`
               : soundName.split('.')[0]}
@@ -657,6 +728,12 @@
 
   .sound-title {
     margin: 0;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
   }
 
   .loop-div {
@@ -685,4 +762,13 @@
     }
     background-blend-mode: luminosity;
   }
+
+  /* UNCOMMENT THIS FOR PLAYHEAD ANIMATION */
+
+  /* .playhead {
+    position: absolute;
+    width: 1px;
+    background-color: red;
+    height: 100%;
+  } */
 </style>
