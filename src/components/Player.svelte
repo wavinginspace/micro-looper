@@ -184,8 +184,6 @@
 
   function setLoopPos(e) {
     document.removeEventListener('mousemove', resize, false);
-    console.log('e.offsetX from setLoopPos: ', e.offsetX);
-    console.log('bounding client rect: ', e.target.getBoundingClientRect().width)
     if (!$sound.name) return;
     let loopTimeMarker;
 
@@ -193,7 +191,13 @@
       loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
       player.loopStart = loopTimeMarker;
     } else {
-      loopTimeMarker = mapRange(e.target.getBoundingClientRect().width, 0, 250, 0, player.buffer.duration);
+      loopTimeMarker = mapRange(
+        e.target.getBoundingClientRect().width,
+        0,
+        250,
+        0,
+        player.buffer.duration
+      );
       player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
     }
   }
@@ -206,15 +210,6 @@
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
     loopEndDiv = document.querySelector('.loop-div__right');
-
-    // loopStartDiv.addEventListener(
-    //   'mouseup',
-    //   function (e) {
-    //     document.removeEventListener('mousemove', resize, false);
-    //     console.log('mouseup offset', e.offsetX);
-    //   },
-    //   false
-    // );
   });
 
   afterUpdate(() => {
@@ -230,6 +225,7 @@
     player.detune = detune;
     player.playbackRate = playbackRate;
     player.grainSize = grainSize;
+    console.log(player);
   });
 
   function handleValueChange(e) {
@@ -366,6 +362,10 @@
     ppWet = 1;
     ppBypass = false;
     mute = false;
+    player.loopStart = 0;
+    player.loopEnd = 0;
+    loopStartDiv.style.width = 0;
+    loopEndDiv.style.width = 0;
   }
 </script>
 
