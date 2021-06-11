@@ -69,8 +69,6 @@
   let loopEndDiv;
   let loopStartPos = 0;
   let loopEndPos = 250;
-  let loopStartTime = 0;
-  let loopEndTime = 0;
 
   // TODO refactor this into object ??
   let playing = player?.state === 'started';
@@ -147,9 +145,76 @@
     player.volume.exponentialRampToValueAtTime(volume, Tone.now() + fadeTime);
   }
 
+  const BORDER_SIZE = 4;
+  let mousePosition;
+
+  function resize(e) {
+    let dx = e.x - mousePosition;
+    mousePosition = e.x;
+    if (e.target.id === 'loopStart') {
+      loopStartDiv.style.width =
+        parseInt(getComputedStyle(loopStartDiv, '').width) + dx + 'px';
+    } else if (e.target.id === 'loopEnd') {
+      loopEndDiv.style.width =
+        parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
+    }
+  }
+
+  // map offsetX to buffer.duration time
+  function mapRange(value, a, b, c, d) {
+    value = (value - a) / (b - a);
+    return c + value * (d - c);
+  }
+
+  function handleLoopDrag(e) {
+    if (!$sound.name) return;
+    let { id } = e.target;
+
+    console.log('e.offsetX: ', e.offsetX);
+    if (e.offsetX >= BORDER_SIZE - 4 && id === 'loopStart') {
+      mousePosition = e.x;
+      console.log('mousePosition:', mousePosition);
+      document.addEventListener('mousemove', resize, false);
+    } else if (e.offsetX <= 250 && id === 'loopEnd') {
+      mousePosition = e.x;
+      console.log('mousePosition:', mousePosition);
+      document.addEventListener('mousemove', resize, false);
+    }
+  }
+
+  function setLoopPos(e) {
+    document.removeEventListener('mousemove', resize, false);
+    console.log('e.offsetX from setLoopPos: ', e.offsetX);
+    console.log('bounding client rect: ', e.target.getBoundingClientRect().width)
+    if (!$sound.name) return;
+    let loopTimeMarker;
+
+    if (e.target.id === 'loopStart') {
+      loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
+      player.loopStart = loopTimeMarker;
+    } else {
+      loopTimeMarker = mapRange(e.target.getBoundingClientRect().width, 0, 250, 0, player.buffer.duration);
+      player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
+    }
+  }
+
+  document.addEventListener('mouseup', function (e) {
+    document.removeEventListener('mousemove', resize, false);
+    setLoopPos(e);
+  });
+
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
     loopEndDiv = document.querySelector('.loop-div__right');
+
+    // loopStartDiv.addEventListener(
+    //   'mouseup',
+    //   function (e) {
+    //     document.removeEventListener('mousemove', resize, false);
+    //     console.log('mouseup offset', e.offsetX);
+    //   },
+    //   false
+    // );
   });
 
   afterUpdate(() => {
@@ -255,31 +320,25 @@
     }
   }
 
-  // map offsetX to buffer.duration time
-  function mapRange(value, a, b, c, d) {
-    value = (value - a) / (b - a);
-    return c + value * (d - c);
-  }
+  // function handleLoopPositionClick(e) {
+  //   if (!$sound.name) return;
+  //   let { offsetX } = e;
+  //   let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
 
-  function handleLoopPositionClick(e) {
-    if (!$sound.name) return;
-    let { offsetX } = e;
-    let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
-
-    if (
-      offsetX >= 0 &&
-      offsetX < loopEndPos &&
-      offsetX - loopStartPos < loopEndPos - offsetX
-    ) {
-      loopStartPos = offsetX;
-      player.loopStart = loopTime;
-      loopStartDiv.style.width = `${e.offsetX}px`;
-    } else if (offsetX > loopStartPos && offsetX <= 250) {
-      loopEndPos = offsetX;
-      player.loopEnd = loopTime;
-      loopEndDiv.style.width = `${250 - e.offsetX}px`;
-    }
-  }
+  //   if (
+  //     offsetX >= 0 &&
+  //     offsetX < loopEndPos &&
+  //     offsetX - loopStartPos < loopEndPos - offsetX
+  //   ) {
+  //     loopStartPos = offsetX;
+  //     player.loopStart = loopTime;
+  //     loopStartDiv.style.width = `${e.offsetX}px`;
+  //   } else if (offsetX > loopStartPos && offsetX <= 250) {
+  //     loopEndPos = offsetX;
+  //     player.loopEnd = loopTime;
+  //     loopEndDiv.style.width = `${250 - e.offsetX}px`;
+  //   }
+  // }
 
   // TODO refactor this to be general use for more fx, if adding more
 
@@ -357,13 +416,20 @@
     <div
       class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
       style="background-image: url('{$sound.image}'); background-repeat: round;"
-      on:click={handleLoopPositionClick}
     >
       <div
         class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
       >
-        <div class="loop-div loop-div__left pointer-events-none" />
-        <div class="loop-div loop-div__right pointer-events-none" />
+        <div
+          id="loopStart"
+          class="loop-div loop-div__left"
+          on:mousedown={handleLoopDrag}
+        />
+        <div
+          id="loopEnd"
+          class="loop-div loop-div__right"
+          on:mousedown={handleLoopDrag}
+        />
       </div>
       {#if $sound.name}
         {#each [$sound.name] as soundName (soundName)}
@@ -596,11 +662,26 @@
   .loop-div {
     @apply h-full bg-white absolute top-0;
     width: 0;
+    &::after {
+      content: ' ';
+      /* background-color: red; */
+      position: absolute;
+      width: 8px;
+      height: 100%;
+      cursor: ew-resize;
+    }
     &__left {
       left: 0;
+      position: absolute;
+      &::after {
+        right: -4px;
+      }
     }
     &__right {
       right: 0;
+      &::after {
+        left: -4px;
+      }
     }
     background-blend-mode: luminosity;
   }
