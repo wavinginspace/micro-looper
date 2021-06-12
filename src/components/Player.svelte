@@ -66,6 +66,9 @@
     };
   }
 
+  // loop variables
+
+  let mousePositionX;
   let loopStartDiv;
   let loopEndDiv;
   let loopStartPos = 0;
@@ -153,15 +156,33 @@
     player.volume.exponentialRampToValueAtTime(volume, Tone.now() + fadeTime);
   }
 
-  let mousePosition;
+  function markBoundary(offsetX) {
+    if (offsetX < 250) {
+      player.loopStart = 0;
+    } else {
+      player.loopEnd = player.buffer.duration;
+    }
+  }
 
   function resize(e) {
-    let dx = e.x - mousePosition;
-    mousePosition = e.x;
-    if (e.target.id === 'loopStart') {
+    let dx = e.x - mousePositionX;
+    const { id } = e.target;
+    const { offsetX } = e;
+    mousePositionX = e.x;
+  
+    if (id === 'playerContainer') {
+      // ** TODO - FIX THIS SO ONLY RUNS ON LEFT AND RIGHT BOUNDARIES, NOT Y
+      if (offsetX < 32 || offsetX > 285) {
+        markBoundary(offsetX)
+      }
+      console.log('offsetX', offsetX);
+ 
+      return;
+    }
+    if (id === 'loopStart') {
       loopStartDiv.style.width =
         parseInt(getComputedStyle(loopStartDiv, '').width) + dx + 'px';
-    } else if (e.target.id === 'loopEnd') {
+    } else if (id === 'loopEnd') {
       loopEndDiv.style.width =
         parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
     }
@@ -177,10 +198,10 @@
     let { id } = e.target;
 
     if (e.offsetX >= 0 && id === 'loopStart') {
-      mousePosition = e.x;
+      mousePositionX = e.x;
       document.addEventListener('mousemove', resize, false);
     } else if (e.offsetX <= 250 && id === 'loopEnd') {
-      mousePosition = e.x;
+      mousePositionX = e.x;
       document.addEventListener('mousemove', resize, false);
     }
   }
@@ -193,6 +214,7 @@
     if (id === 'loopStart') {
       loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
       player.loopStart = loopTimeMarker;
+      console.log('ran');
     } else if (id === 'loopEnd') {
       loopTimeMarker = mapRange(
         e.target.getBoundingClientRect().width,
@@ -243,6 +265,9 @@
     player.detune = detune;
     player.playbackRate = playbackRate;
     player.grainSize = grainSize;
+
+    // player.loopStart = loopStartTime;
+    // player.loopEnd = loopEndTime;
   });
 
   function handleValueChange(e) {
@@ -251,40 +276,40 @@
     id = value;
   }
 
-  function animatePlayhead(cancel) {
-    let start;
-    let reqId;
+  // function animatePlayhead(cancel) {
+  //   let start;
+  //   let reqId;
 
-    if (cancel) {
-      cancelAnimationFrame(reqId);
-    }
+  //   if (cancel) {
+  //     cancelAnimationFrame(reqId);
+  //   }
 
-    if (cancel) return;
+  //   if (cancel) return;
 
-    function step(timestamp) {
-      if (start === undefined) start = timestamp;
-      let elapsed = timestamp - start;
-      playheadPos = Math.min(
-        mapRange(
-          elapsed,
-          0,
-          (player.loopEnd - player.loopStart) * 1000,
-          0,
-          250 - parseInt(loopEndDiv.style.width)
-        ),
-        250
-      );
+  //   function step(timestamp) {
+  //     if (start === undefined) start = timestamp;
+  //     let elapsed = timestamp - start;
+  //     playheadPos = Math.min(
+  //       mapRange(
+  //         elapsed,
+  //         0,
+  //         (player.loopEnd - player.loopStart) * 1000,
+  //         0,
+  //         250 - parseInt(loopEndDiv.style.width)
+  //       ),
+  //       250
+  //     );
 
-      if (elapsed < (player.loopEnd - player.loopStart) * 1000) {
-        // Stop the animation after buffer duration
-        requestAnimationFrame(step);
-      } else {
-        start = 0;
-      }
-    }
+  //     if (elapsed < (player.loopEnd - player.loopStart) * 1000) {
+  //       // Stop the animation after buffer duration
+  //       requestAnimationFrame(step);
+  //     } else {
+  //       start = 0;
+  //     }
+  //   }
 
-    reqId = requestAnimationFrame(step);
-  }
+  //   reqId = requestAnimationFrame(step);
+  // }
 
   function handlePlayClick() {
     let fadeTime = 0.015;
@@ -454,6 +479,7 @@
 >
   <h1 class="text-green-400 text-4xl mb-4 uppercase">Micro Looper</h1>
   <div
+    id="playerContainer"
     class="px-8 pb-4 pt-10 w-80 bg-white border-2 relative rounded border-indigo-700 "
   >
     <button
