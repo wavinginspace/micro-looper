@@ -265,9 +265,6 @@
     player.detune = detune;
     player.playbackRate = playbackRate;
     player.grainSize = grainSize;
-
-    // player.loopStart = loopStartTime;
-    // player.loopEnd = loopEndTime;
   });
 
   function handleValueChange(e) {
@@ -767,7 +764,6 @@
     width: 0;
     &::after {
       content: ' ';
-      /* background-color: red; */
       position: absolute;
       width: 8px;
       height: 100%;
