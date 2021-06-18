@@ -38,11 +38,11 @@
       OggOpusEncoderWasmPath:
         'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm',
       WebMOpusEncoderWasmPath:
-        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm'
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm',
     };
 
     let options = {
-      mimeType: 'audio/wav'
+      mimeType: 'audio/wav',
     };
     // replace native MediaRecorder with OpusMediaRecorder
     // @ts-ignore
@@ -76,6 +76,7 @@
   let loopTimeMarker;
   let playheadPos = 0;
   let playheadTimer;
+  let playerContainer;
 
   // TODO refactor this into object ??
   let playing = player?.state === 'started';
@@ -169,14 +170,15 @@
     const { id } = e.target;
     const { offsetX } = e;
     mousePositionX = e.x;
-  
+
+    console.log(id);
+
     if (id === 'playerContainer') {
       // ** TODO - FIX THIS SO ONLY RUNS ON LEFT AND RIGHT BOUNDARIES, NOT Y
       if (offsetX < 32 || offsetX > 285) {
-        markBoundary(offsetX)
+        markBoundary(offsetX);
       }
-      console.log('offsetX', offsetX);
- 
+
       return;
     }
     if (id === 'loopStart') {
@@ -246,6 +248,7 @@
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
     loopEndDiv = document.querySelector('.loop-div__right');
+    playerContainer = document.querySelector('#playerContainer');
   });
 
   afterUpdate(() => {
@@ -459,12 +462,13 @@
     loopStartDiv.style.width = 0;
     loopEndDiv.style.width = 0;
   }
+
 </script>
 
 <LibLoader
   url={[
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OpusMediaRecorder.umd.js',
-    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js'
+    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js',
   ]}
   on:loaded={initOpusRecorder}
 />
@@ -793,4 +797,5 @@
     background-color: red;
     height: 100%;
   } */
+
 </style>
