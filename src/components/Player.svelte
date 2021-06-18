@@ -255,9 +255,9 @@
     let now = Tone.now();
     let fadeTime = 0.3;
 
-    // Tone.loaded().then(() => {
-    //   player.loopEnd = Math.min(player.buffer.duration, player.loopEnd);
-    // });
+    Tone.loaded().then(() => {
+      player.loopEnd = Math.min(player.buffer.duration, player.loopEnd);
+    });
 
     pingPong.feedback.setTargetAtTime(ppFeedback, now, fadeTime);
     pingPong.delayTime.setTargetAtTime(ppTime, now, fadeTime);
@@ -275,6 +275,8 @@
     // assign values to GrainPlayer params
     id = value;
   }
+
+  // ** TODO - fix or replace with p5 playhead animation
 
   // function animatePlayhead(cancel) {
   //   let start;
