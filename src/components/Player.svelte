@@ -171,8 +171,6 @@
     const { offsetX } = e;
     mousePositionX = e.x;
 
-    console.log(id);
-
     if (id === 'playerContainer') {
       // ** TODO - FIX THIS SO ONLY RUNS ON LEFT AND RIGHT BOUNDARIES, NOT Y
       if (offsetX < 32 || offsetX > 285) {
@@ -227,17 +225,6 @@
       );
       player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
     }
-
-    // UNCOMMENT THIS TO START PLAYHEAD
-    // if (id === 'loopStart' || id === 'loopEnd') {
-    //   // cancel animation request
-    //   animatePlayhead(true);
-    //   clearInterval(playheadTimer);
-    //   playheadTimer = setInterval(() => {
-    //     animatePlayhead();
-    //     console.log('now I run');
-    //   }, (player.loopEnd - player.loopStart) * 1000);
-    // }
   }
 
   document.addEventListener('mouseup', function (e) {
@@ -276,51 +263,12 @@
     id = value;
   }
 
-  // ** TODO - fix or replace with p5 playhead animation
-
-  // function animatePlayhead(cancel) {
-  //   let start;
-  //   let reqId;
-
-  //   if (cancel) {
-  //     cancelAnimationFrame(reqId);
-  //   }
-
-  //   if (cancel) return;
-
-  //   function step(timestamp) {
-  //     if (start === undefined) start = timestamp;
-  //     let elapsed = timestamp - start;
-  //     playheadPos = Math.min(
-  //       mapRange(
-  //         elapsed,
-  //         0,
-  //         (player.loopEnd - player.loopStart) * 1000,
-  //         0,
-  //         250 - parseInt(loopEndDiv.style.width)
-  //       ),
-  //       250
-  //     );
-
-  //     if (elapsed < (player.loopEnd - player.loopStart) * 1000) {
-  //       // Stop the animation after buffer duration
-  //       requestAnimationFrame(step);
-  //     } else {
-  //       start = 0;
-  //     }
-  //   }
-
-  //   reqId = requestAnimationFrame(step);
-  // }
-
   function handlePlayClick() {
     let fadeTime = 0.015;
     togglePlay();
     if (player.state == 'started') {
       clearTimeout(playTimer);
       clearInterval(playheadTimer);
-      // UNCOMMENT THIS FOR PLAYHEAD ANIMATION (cancels previous animation request)
-      // animatePlayhead(true);
       playheadPos = 0;
       playing = false;
       fadeOut(fadeTime);
@@ -337,8 +285,6 @@
         player.loopEnd = player.buffer.duration;
         playing = true;
         fadeIn(fadeTime);
-        // UNCOMMENT THIS TO START PLAYHEAD ANIMATION
-        // animatePlayhead();
 
         playTimer = setTimeout(() => {
           if (!loop) {
@@ -346,12 +292,6 @@
             clearInterval(playheadTimer);
           }
         }, 1000 * player.buffer.duration);
-
-        // UNCOMMENT THIS TO LOOP PLAYHEAD
-        // playheadTimer = setInterval(() => {
-        //   animatePlayhead();
-        //   // console.log('hehe I ran');
-        // }, (player.loopEnd - player.loopStart) * 1000);
       });
     }
   }
@@ -408,30 +348,6 @@
       recorder.stop();
     }
   }
-
-  // TODO - KEEP OR DELETE?
-
-  // function handleLoopPositionClick(e) {
-  //   if (!$sound.name) return;
-  //   let { offsetX } = e;
-  //   let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
-
-  //   console.log(loopTime);
-
-  //   if (
-  //     offsetX >= 0 &&
-  //     offsetX < loopEndPos &&
-  //     offsetX - loopStartPos < loopEndPos - offsetX
-  //   ) {
-  //     loopStartPos = offsetX;
-  //     player.loopStart = loopTime;
-  //     loopStartDiv.style.width = `${e.offsetX}px`;
-  //   } else if (offsetX > loopStartPos && offsetX <= 250) {
-  //     loopEndPos = offsetX;
-  //     player.loopEnd = loopTime;
-  //     loopEndDiv.style.width = `${250 - e.offsetX}px`;
-  //   }
-  // }
 
   // TODO refactor this to be general use for more fx, if adding more
 
@@ -790,14 +706,5 @@
     }
     background-blend-mode: luminosity;
   }
-
-  /* UNCOMMENT THIS FOR PLAYHEAD ANIMATION */
-
-  /* .playhead {
-    position: absolute;
-    width: 1px;
-    background-color: red;
-    height: 100%;
-  } */
 
 </style>
