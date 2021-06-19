@@ -178,7 +178,6 @@
       if (offsetX < 32 || offsetX > 285) {
         markBoundary(offsetX);
       }
-
       return;
     }
     if (id === 'loopStart') {
