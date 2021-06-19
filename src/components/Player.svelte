@@ -24,6 +24,10 @@
 
   let recorder;
   let playTimer;
+  let recordTimer;
+  let recordMinutes = 0;
+  let recordSecondsPlaceholder = 0;
+  let recordSeconds = 0;
   let loadCount = 0;
 
   // setup recordDest for MediaRecorder
@@ -395,7 +399,24 @@
     }
   }
 
+  function startTimer() {
+    if (recordMinutes === 0 && recordSeconds === 0) {
+      recordTimer = setInterval(() => {
+        recordSeconds += 1;
+        if (recordSeconds > 59) {
+          recordSeconds = 0;
+          recordMinutes += 1;
+        }
+      }, 1000);
+    } else {
+      clearInterval(recordTimer);
+      recordMinutes = 0;
+      recordSeconds = 0;
+    }
+  }
+
   function handleRecordClick() {
+    startTimer();
     recording = !recording;
     if (recording) {
       chunks = [];
@@ -491,6 +512,11 @@
     >
       <Random class="transition hover:text-indigo-500" />
     </button>
+    <span class="absolute inset-x-0 text-center min-w-min top-2 text-gray-800"
+      >{recordMinutes}:<span hidden={recordSeconds > 9}
+        >{recordSecondsPlaceholder}</span
+      >{recordSeconds}</span
+    >
     <button
       data-tooltip="Reset parameters"
       on:click={reset}
