@@ -25,6 +25,7 @@
   let recorder;
   let playTimer;
   let recordTimer;
+  // let recordTimerStarted = false;
   let recordMinutes = 0;
   let recordSecondsPlaceholder = 0;
   let recordSeconds = 0;
@@ -418,7 +419,7 @@
   <h1 class="text-green-400 text-4xl mb-4 uppercase">Micro Looper</h1>
   <div
     id="playerContainer"
-    class="px-8 pb-4 pt-10 w-80 bg-white border-2 relative rounded border-indigo-700 "
+    class="px-8 pb-4 pt-10 w-80 bg-white border-2 relative rounded border-indigo-700"
   >
     <button
       data-tooltip="Load a random sound"
@@ -427,11 +428,17 @@
     >
       <Random class="transition hover:text-indigo-500" />
     </button>
-    <span class="absolute inset-x-0 text-center min-w-min top-2 text-gray-800"
-      >{recordMinutes}:<span hidden={recordSeconds > 9}
-        >{recordSecondsPlaceholder}</span
-      >{recordSeconds}</span
-    >
+
+    {#if recording}
+      <span
+        class="absolute inset-x-0 text-center min-w-min top-2 text-gray-800 transition"
+        transition:fade={{ duration: 200 }}
+        >{recordMinutes}:<span hidden={recordSeconds > 9}
+          >{recordSecondsPlaceholder}</span
+        >{recordSeconds}
+      </span>
+    {/if}
+
     <button
       data-tooltip="Reset parameters"
       on:click={reset}
@@ -475,7 +482,7 @@
       {#if $sound.name}
         {#each [$sound.name] as soundName (soundName)}
           <h2
-            class="sound-title text-l font-semibold relative text-indigo-500 cursor-default pointer-events-none"
+            class="sound-title text-l font-semibold relative text-indigo-500 cursor-default select-none pointer-events-none"
             in:fly={{ y: -200, duration: 2000 }}
             out:fade
           >
@@ -693,16 +700,6 @@
     overflow: hidden;
     height: 2.6rem;
     white-space: nowrap;
-  }
-
-  .sound-title {
-    margin: 0;
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none;
   }
 
   .loop-div {
