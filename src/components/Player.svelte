@@ -502,6 +502,7 @@
         id="play"
         data-tooltip={playing ? 'Pause' : 'Play'}
         on:click={handlePlayClick}
+        on:touchend={handlePlayClick}
         class="control-button disabled:bg-gray-200"
         class:bg-green-100={playing}
         disabled={!$sound.name}
