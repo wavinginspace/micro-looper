@@ -25,7 +25,6 @@
   let recorder;
   let playTimer;
   let recordTimer;
-  // let recordTimerStarted = false;
   let recordMinutes = 0;
   let recordSecondsPlaceholder = 0;
   let recordSeconds = 0;
