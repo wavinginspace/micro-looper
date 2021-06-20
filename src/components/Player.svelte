@@ -4,8 +4,9 @@
   import throttle from 'just-throttle';
   import LibLoader from './LibLoader.svelte';
   import Knob from './Knob.svelte';
+  import SoundTitle from './SoundTitle.svelte';
   import { sound, random } from '../store';
-  import { onMount, afterUpdate } from 'svelte';
+  import { afterUpdate } from 'svelte';
   import { fade, fly } from 'svelte/transition';
 
   import Play from 'carbon-icons-svelte/lib/PlayFilledAlt24';
@@ -34,8 +35,6 @@
   let chunks = []; // where stream data gets stored
   const actx = Tone.context;
   const recordDest = actx.createMediaStreamDestination();
-
-  // console.log(recordDest);
 
   function initOpusRecorder() {
     const workerOptions = {
@@ -66,21 +65,10 @@
       a.href = audioRecord.src;
       a.download = `${$sound.name.split('.')[0]}.wav`;
       a.click();
-      window.URL.revokeObjectURL(audioRecord.src);
+      // TODO was throwing error - not needed? not supported by Service Workers
+      // window.URL.revokeObjectURL(audioRecord.src);
     };
   }
-
-  // loop variables
-
-  let mousePositionX;
-  let loopStartDiv;
-  let loopEndDiv;
-  let loopStartPos = 0;
-  let loopEndPos = 250;
-  let loopTimeMarker;
-  let playheadPos = 0;
-  let playheadTimer;
-  let playerContainer;
 
   // TODO refactor this into object ??
   let playing = player?.state === 'started';
@@ -122,16 +110,16 @@
         console.log('loaded');
         loadCount++;
       });
-    resetLoopDivs();
+    // resetLoopDivs();
     player.loopEnd = player.buffer.duration;
   }
 
-  function resetLoopDivs() {
-    loopStartDiv.style.width = 0;
-    loopEndDiv.style.width = 0;
-    loopStartPos = 0;
-    loopEndPos = 250;
-  }
+  // function resetLoopDivs() {
+  //   loopStartDiv.style.width = 0;
+  //   loopEndDiv.style.width = 0;
+  //   loopStartPos = 0;
+  //   loopEndPos = 250;
+  // }
 
   // listen for new sound file from store, load player
   $: if ($sound.sound) modifyPlayer($sound.sound);
@@ -161,93 +149,13 @@
     player.volume.exponentialRampToValueAtTime(volume, Tone.now() + fadeTime);
   }
 
-  function markBoundary(offsetX) {
-    if (offsetX < 250) {
-      player.loopStart = 0;
-    } else {
-      player.loopEnd = player.buffer.duration;
-    }
-  }
-
-  function resize(e) {
-    let dx = e.x - mousePositionX;
-    const { id } = e.target;
-    const { offsetX } = e;
-    mousePositionX = e.x;
-
-    if (id === 'playerContainer') {
-      // ** TODO - FIX THIS SO ONLY RUNS ON LEFT AND RIGHT BOUNDARIES, NOT Y
-      if (offsetX < 32 || offsetX > 285) {
-        markBoundary(offsetX);
-      }
-      return;
-    }
-    if (id === 'loopStart') {
-      loopStartDiv.style.width =
-        parseInt(getComputedStyle(loopStartDiv, '').width) + dx + 'px';
-    } else if (id === 'loopEnd') {
-      loopEndDiv.style.width =
-        parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
-    }
-  }
-
-  function mapRange(value, a, b, c, d) {
-    value = (value - a) / (b - a);
-    return c + value * (d - c);
-  }
-
-  function handleLoopDrag(e) {
-    if (!$sound.name) return;
-    let { id } = e.target;
-
-    if (e.offsetX >= 0 && id === 'loopStart') {
-      mousePositionX = e.x;
-      document.addEventListener('mousemove', resize, false);
-    } else if (e.offsetX <= 250 && id === 'loopEnd') {
-      mousePositionX = e.x;
-      document.addEventListener('mousemove', resize, false);
-    }
-  }
-
-  function setLoopPos(e) {
-    document.removeEventListener('mousemove', resize, false);
-    const { id } = e.target;
-    if (!$sound.name) return;
-
-    if (id === 'loopStart') {
-      loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
-      player.loopStart = loopTimeMarker;
-      console.log('ran');
-    } else if (id === 'loopEnd') {
-      loopTimeMarker = mapRange(
-        e.target.getBoundingClientRect().width,
-        0,
-        250,
-        0,
-        player.buffer.duration
-      );
-      player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
-    }
-  }
-
-  document.addEventListener('mouseup', function (e) {
-    document.removeEventListener('mousemove', resize, false);
-    setLoopPos(e);
-  });
-
-  onMount(() => {
-    loopStartDiv = document.querySelector('.loop-div__left');
-    loopEndDiv = document.querySelector('.loop-div__right');
-    playerContainer = document.querySelector('#playerContainer');
-  });
-
   afterUpdate(() => {
     let now = Tone.now();
     let fadeTime = 0.3;
 
-    Tone.loaded().then(() => {
-      player.loopEnd = Math.min(player.buffer.duration, player.loopEnd);
-    });
+    // Tone.loaded().then(() => {
+    //   player.loopEnd = Math.min(player.buffer.duration, player.loopEnd);
+    // });
 
     pingPong.feedback.setTargetAtTime(ppFeedback, now, fadeTime);
     pingPong.delayTime.setTargetAtTime(ppTime, now, fadeTime);
@@ -271,8 +179,8 @@
     togglePlay();
     if (player.state == 'started') {
       clearTimeout(playTimer);
-      clearInterval(playheadTimer);
-      playheadPos = 0;
+      // clearInterval(playheadTimer);
+      // playheadPos = 0;
       playing = false;
       fadeOut(fadeTime);
 
@@ -291,7 +199,7 @@
         playTimer = setTimeout(() => {
           if (!loop) {
             togglePlay();
-            clearInterval(playheadTimer);
+            // clearInterval(playheadTimer);
           }
         }, 1000 * player.buffer.duration);
       });
@@ -394,10 +302,10 @@
     ppWet = 1;
     ppBypass = false;
     mute = false;
-    player.loopStart = 0;
-    player.loopEnd = 0;
-    loopStartDiv.style.width = 0;
-    loopEndDiv.style.width = 0;
+    // player.loopStart = 0;
+    // player.loopEnd = 0;
+    // loopStartDiv.style.width = 0;
+    // loopEndDiv.style.width = 0;
   }
 
 </script>
@@ -458,44 +366,8 @@
         <VolumeLow class="transition" />
       {/if}
     </button>
-    <!-- TODO - REFACTOR THIS INTO NEW COMPONENT -->
-    <div
-      class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
-      style="background-image: url('{$sound.image}'); background-repeat: round;"
-    >
-      <div
-        class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
-      >
-        <div class="playhead" style="left: {playheadPos}px" />
-        <div
-          id="loopStart"
-          class="loop-div loop-div__left z-10"
-          on:mousedown={handleLoopDrag}
-        />
-        <div
-          id="loopEnd"
-          class="loop-div loop-div__right z-10"
-          on:mousedown={handleLoopDrag}
-        />
-      </div>
-      {#if $sound.name}
-        {#each [$sound.name] as soundName (soundName)}
-          <h2
-            class="sound-title text-l font-semibold relative text-indigo-500 cursor-default select-none pointer-events-none"
-            in:fly={{ y: -200, duration: 2000 }}
-            out:fade
-          >
-            {soundName.length > 30
-              ? `${soundName.split('.')[0].substring(0, 28)}...`
-              : soundName.split('.')[0]}
-          </h2>
-        {/each}
-      {:else}
-        <h2 class="text-l font-semibold text-indigo-500 relative" out:fade>
-          No sound loaded yet
-        </h2>
-      {/if}
-    </div>
+
+    <SoundTitle />
 
     <div class="mx-auto flex items-center justify-around w-100 space-x-1">
       <button
@@ -693,39 +565,6 @@
 <style>
   .control-button {
     @apply border-2 border-indigo-600 rounded p-2 relative active:border-indigo-700 focus:border-indigo-700 focus:outline-none;
-  }
-
-  .sound-title-wrapper {
-    text-align: center;
-    overflow: hidden;
-    height: 2.6rem;
-    white-space: nowrap;
-  }
-
-  .loop-div {
-    @apply h-full bg-white absolute top-0;
-    width: 0;
-    &::after {
-      content: ' ';
-      position: absolute;
-      width: 8px;
-      height: 100%;
-      cursor: ew-resize;
-    }
-    &__left {
-      left: 0;
-      position: absolute;
-      &::after {
-        right: -4px;
-      }
-    }
-    &__right {
-      right: 0;
-      &::after {
-        left: -4px;
-      }
-    }
-    background-blend-mode: luminosity;
   }
 
 </style>
