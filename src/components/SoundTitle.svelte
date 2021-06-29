@@ -11,13 +11,11 @@
   let loopEndPos = 250;
   let loopTimeMarker;
   let playheadPos = 0;
-  let playheadTimer;
-  let playerContainer;
+  // let playerContainer;
 
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
     loopEndDiv = document.querySelector('.loop-div__right');
-    playerContainer = document.querySelector('#playerContainer');
   });
 
   function markBoundary(offsetX) {
