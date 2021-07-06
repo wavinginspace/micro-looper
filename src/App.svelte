@@ -30,7 +30,7 @@
     position: absolute;
     bottom: 100%;
     left: 50%;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     padding: 7px;
     width: max-content;
     max-width: 200px;

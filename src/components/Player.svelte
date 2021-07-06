@@ -41,11 +41,11 @@
       OggOpusEncoderWasmPath:
         'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OggOpusEncoder.wasm',
       WebMOpusEncoderWasmPath:
-        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm',
+        'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/WebMOpusEncoder.wasm'
     };
 
     let options = {
-      mimeType: 'audio/wav',
+      mimeType: 'audio/wav'
     };
     // replace native MediaRecorder with OpusMediaRecorder
     // @ts-ignore
@@ -307,13 +307,12 @@
     // loopStartDiv.style.width = 0;
     // loopEndDiv.style.width = 0;
   }
-
 </script>
 
 <LibLoader
   url={[
     'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/OpusMediaRecorder.umd.js',
-    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js',
+    'https://cdn.jsdelivr.net/npm/opus-media-recorder@latest/encoderWorker.umd.js'
   ]}
   on:loaded={initOpusRecorder}
 />
@@ -340,9 +339,10 @@
       <span
         class="absolute inset-x-0 text-center min-w-min top-2 text-gray-800 transition"
         transition:fade={{ duration: 200 }}
-        >{recordMinutes}:<span hidden={recordSeconds > 9}
-          >{recordSecondsPlaceholder}</span
-        >{recordSeconds}
+      >
+        {recordMinutes}:
+        <span hidden={recordSeconds > 9}>{recordSecondsPlaceholder}</span>
+        {recordSeconds}
       </span>
     {/if}
 
@@ -566,5 +566,4 @@
   .control-button {
     @apply border-2 border-indigo-600 rounded p-2 relative active:border-indigo-700 focus:border-indigo-700 focus:outline-none;
   }
-
 </style>
