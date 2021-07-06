@@ -1,7 +1,6 @@
 <script>
   import Modal from './Modal.svelte';
   import GithubIcon from 'carbon-icons-svelte/lib/LogoGithub24';
-  import HelpIcon from 'carbon-icons-svelte/lib/Help24';
 </script>
 
 <div class="absolute top-2 right-2 ">
@@ -16,14 +15,29 @@
     <Modal>
       <div slot="trigger" let:open>
         <button on:click={open} class="transition hover:text-indigo-500">
-          <HelpIcon />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="feather feather-help-circle"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
         </button>
       </div>
 
       <div slot="content" class="content text-xs transition">
         <p>
           <span class="text-green-400 font-semibold">Micro Looper</span>
-           is a tool for generating infinite sounds.
+          is a tool for generating infinite sounds.
         </p>
         <p>
           Search for samples via FreeSound and click on a result to load into

@@ -1,6 +1,5 @@
 <script context="module">
   const modalList = [];
-
 </script>
 
 <script>
@@ -25,9 +24,9 @@
   function modalAction(node) {
     const returnFn = [];
     // for accessibility
-    if (document.body.style.overflow !== 'hidden') {
+    if (document.body.style.overflow !== 'auto') {
       const original = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'auto';
       returnFn.push(() => {
         document.body.style.overflow = original;
       });
@@ -44,10 +43,9 @@
       modalList[modalList.length - 1]?.focus();
     });
     return {
-      destroy: () => returnFn.forEach((fn) => fn()),
+      destroy: () => returnFn.forEach((fn) => fn())
     };
   }
-
 </script>
 
 <slot name="trigger" {open}>
@@ -66,9 +64,12 @@
     <div
       class="content-wrapper relative p-5 bg-indigo-900 text-gray-200 border border-gray-200"
     >
-      <button on:click={close} class="absolute top-1 right-1 hover:text-red-200"
-        ><Close /></button
+      <button
+        on:click={close}
+        class="absolute top-1 right-1 hover:text-red-200"
       >
+        <Close />
+      </button>
       <slot name="header" {store}>
         <!-- fallback -->
         <div>
@@ -121,7 +122,6 @@
     width: 100%;
     max-width: 400px;
     border-radius: 0.3rem;
-    overflow: hidden;
   }
 
   @media (max-width: 480px) {
@@ -138,5 +138,4 @@
   .content p {
     color: red;
   }
-
 </style>

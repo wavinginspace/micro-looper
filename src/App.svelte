@@ -1,10 +1,10 @@
 <script>
-  import Player from "./components/Player.svelte";
-  import Search from "./components/Search.svelte";
-  import Nav from "./components/Nav.svelte"
-
+  import Player from './components/Player.svelte';
+  import Search from './components/Search.svelte';
+  import Nav from './components/Nav.svelte';
 </script>
-<Nav/>
+
+<Nav />
 <Player />
 <Search />
 
@@ -55,7 +55,7 @@
     border-top: 5px solid hsla(0, 0%, 20%, 0.9);
     border-right: 5px solid transparent;
     border-left: 5px solid transparent;
-    content: " ";
+    content: ' ';
     font-size: 0;
     line-height: 0;
   }
@@ -67,10 +67,9 @@
     transform: translate(-50%, 0);
     transition: 0.2s ease-out 1s;
   }
-  [data-tooltip="false"]:hover:before,
-  [data-tooltip="false"]:hover:after {
+  [data-tooltip='false']:hover:before,
+  [data-tooltip='false']:hover:after {
     visibility: hidden;
     opacity: 0;
   }
-
 </style>

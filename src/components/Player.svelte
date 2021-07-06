@@ -110,16 +110,8 @@
         console.log('loaded');
         loadCount++;
       });
-    // resetLoopDivs();
     player.loopEnd = player.buffer.duration;
   }
-
-  // function resetLoopDivs() {
-  //   loopStartDiv.style.width = 0;
-  //   loopEndDiv.style.width = 0;
-  //   loopStartPos = 0;
-  //   loopEndPos = 250;
-  // }
 
   // listen for new sound file from store, load player
   $: if ($sound.sound) modifyPlayer($sound.sound);
