@@ -359,7 +359,7 @@
       {/if}
     </button>
 
-    <SoundTitle />
+    <SoundTitle {player} />
 
     <div class="mx-auto flex items-center justify-around w-100 space-x-1">
       <button

@@ -33,7 +33,7 @@
     sound.set({
       sound: result.previews['preview-hq-ogg'],
       name: result.name,
-      image: result.images.waveform_bw_m,
+      image: result.images.waveform_bw_m
     });
     paused = true;
   }
@@ -72,30 +72,31 @@
     paused = !paused;
     colorWaveform();
   }
-
 </script>
 
 <div
   data-tooltip="Click to load player with sound"
   class="result-list-item-wrapper bg-white relative hover:shadow-lg border-gray-800 border"
-  style="background-image: url('{result.images
-    .waveform_bw_m}'); background-repeat: round;"
   on:click={loadSound}
 >
   <div class="progress-overlay" style="width: {innerSize}%;" />
-  <div class="waveform-overlay" />
+  <div
+    class="waveform-image"
+    style="background-image: url('{result.images.waveform_bw_m}');"
+  />
 
+  <div class="waveform-filter-overlay" />
   <li class="result-list-item relative pr-7 ">
     <div class="inline-flex w-full items-center justify-between">
       <span
-        class="sound-link text-indigo-600 font-transition text-xs  font-bold mr-4 break-words truncate"
+        class="sound-link text-indigo-600 font-transition text-xs  font-bold mr-4 break-words truncate z-20"
       >
         {result.name.split('.')[0]}
         <!-- {result.name.length > 24
             ? result.name.substring(0, 21) + '...'
             : result.name.split('.')[0]} -->
       </span>
-      <span class="text-xs text-gray-800 font-medium">{time}</span>
+      <span class="text-xs text-gray-800 font-medium z-20">{time}</span>
     </div>
     <!-- <br /> -->
     <!-- <a class="sound-download-link">DL</a> -->
@@ -136,6 +137,7 @@
     width: 20px;
     height: 20px;
     @apply text-indigo-500 hover:text-indigo-700;
+    z-index: 15;
   }
 
   .result-list-item-wrapper {
@@ -165,10 +167,11 @@
     bottom: 0;
     border-radius: 5px;
     height: 100%;
-    background: rgb(9 243 148 / 37%);
+    background: rgb(9 243 148 / 17%);
+    z-index: 10;
   }
 
-  .waveform-overlay {
+  .waveform-filter-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -178,7 +181,18 @@
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.57);
-    /* backdrop-filter: hue-rotate(141deg); */
+    backdrop-filter: hue-rotate(105deg);
   }
 
+  .waveform-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+    background-repeat: round;
+  }
 </style>
