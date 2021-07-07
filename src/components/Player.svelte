@@ -332,10 +332,12 @@
         class="absolute inset-x-0 text-center min-w-min top-2 text-gray-800 transition"
         transition:fade={{ duration: 200 }}
       >
-        {recordMinutes}:
+      <span class="flex justify-center align-center text-sm relative -bottom-0.5">
+        <span class="m-0">{recordMinutes}:</span>
         <span hidden={recordSeconds > 9}>{recordSecondsPlaceholder}</span>
-        {recordSeconds}
+        <span class="m-0">{recordSeconds}</span>
       </span>
+    </span>
     {/if}
 
     <button
