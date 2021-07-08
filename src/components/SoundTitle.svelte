@@ -5,17 +5,26 @@
   export let player;
 
   let mousePositionX;
+  let mouseDown = false;
+  let loopClickTarget;
   let loopStartDiv;
   let loopEndDiv;
   let loopStartPos = 0;
   let loopEndPos = 250;
   let loopTimeMarker;
   let playheadPos = 0;
+
   // let playerContainer;
 
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
     loopEndDiv = document.querySelector('.loop-div__right');
+    document.addEventListener('mousedown', (e) => {
+      mouseDown = true;
+    });
+    document.addEventListener('mouseup', () => {
+      mouseDown = false;
+    });
   });
 
   function markBoundary(offsetX) {
@@ -28,23 +37,16 @@
 
   function resize(e) {
     let dx = e.x - mousePositionX;
-    const { id } = e.target;
-    const { offsetX } = e;
     mousePositionX = e.x;
 
-    if (id === 'playerContainer') {
-      // ** TODO - FIX THIS SO ONLY RUNS ON LEFT AND RIGHT BOUNDARIES, NOT Y
-      if (offsetX < 32 || offsetX > 285) {
-        markBoundary(offsetX);
-      }
-      return;
-    }
-    if (id === 'loopStart') {
+    if (loopClickTarget === 'loopStart' && mouseDown) {
       loopStartDiv.style.width =
         parseInt(getComputedStyle(loopStartDiv, '').width) + dx + 'px';
-    } else if (id === 'loopEnd') {
+    } else if (loopClickTarget === 'loopEnd' && mouseDown) {
       loopEndDiv.style.width =
         parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
+    } else {
+      console.log('STOPPED');
     }
   }
 
@@ -55,36 +57,41 @@
 
   function handleLoopDrag(e) {
     if (!$sound.name) return;
+    // loopClickTarget = e.target.id
     let { id } = e.target;
+    console.log(id);
+    loopClickTarget = id;
 
-    if (e.offsetX >= 0 && id === 'loopStart') {
+    if (e.offsetX >= 0 && loopClickTarget === 'loopStart') {
+      console.log('e.offsetX', e.offsetX);
       mousePositionX = e.x;
       document.addEventListener('mousemove', resize, false);
-    } else if (e.offsetX <= 250 && id === 'loopEnd') {
+    } else if (e.offsetX <= 250 && loopClickTarget === 'loopEnd') {
+      console.log('e.offsetX', e.offsetX);
       mousePositionX = e.x;
       document.addEventListener('mousemove', resize, false);
     }
   }
 
   function setLoopPos(e) {
-    document.removeEventListener('mousemove', resize, false);
-    const { id } = e.target;
-    if (!$sound.name) return;
-
-    if (id === 'loopStart') {
-      loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
-      player.loopStart = loopTimeMarker;
-      console.log('ran');
-    } else if (id === 'loopEnd') {
-      loopTimeMarker = mapRange(
-        e.target.getBoundingClientRect().width,
-        0,
-        250,
-        0,
-        player.buffer.duration
-      );
-      player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
-    }
+    // document.removeEventListener('mousemove', resize, false);
+    // const { id } = e.target;
+    // if (!$sound.name) return;
+    // return;
+    // if (id === 'loopStart') {
+    //   loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
+    //   player.loopStart = loopTimeMarker;
+    //   console.log('ran');
+    // } else if (id === 'loopEnd') {
+    //   loopTimeMarker = mapRange(
+    //     e.target.getBoundingClientRect().width,
+    //     0,
+    //     250,
+    //     0,
+    //     player.buffer.duration
+    //   );
+    //   player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
+    // }
   }
 
   // TODO - KEEP OR DELETE?
@@ -122,14 +129,15 @@
     document.removeEventListener('mousemove', resize, false);
     setLoopPos(e);
   });
-
 </script>
 
 <div
+  id="soundTitleWrapper"
   class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
   style="background-image: url('{$sound.image}'); background-repeat: round;"
 >
   <div
+    id="loopBackground"
     class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
   >
     <div class="playhead" style="left: {playheadPos}px" />
@@ -137,6 +145,7 @@
       id="loopStart"
       class="loop-div loop-div__left z-10"
       on:mousedown={handleLoopDrag}
+      on:mouseup={() => console.log('MOUSE UP')}
     />
     <div
       id="loopEnd"

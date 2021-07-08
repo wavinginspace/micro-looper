@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "interactjs": "^1.10.11",
     "just-throttle": "^2.3.0",
     "p5-svelte": "^2.2.2",
     "qs": "^6.10.1",
