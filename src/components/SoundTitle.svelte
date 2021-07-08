@@ -3,7 +3,7 @@
   let loopEndDiv;
   let loopStartPos = 0;
   let loopEndPos = 250;
-  
+
   export function resetLoopDivs() {
     loopStartDiv.style.width = 0;
     loopEndDiv.style.width = 0;
@@ -39,14 +39,6 @@
     });
   });
 
-  function markBoundary(offsetX) {
-    if (offsetX < 250) {
-      player.loopStart = 0;
-    } else {
-      player.loopEnd = player.buffer.duration;
-    }
-  }
-
   function resize(e) {
     let dx = e.x - mousePositionX;
     mousePositionX = e.x;
@@ -79,20 +71,15 @@
     }
   }
 
-  // ** TODO - convert this to set loop in/out in store so Player component can read it
-
   function setLoopPos(e) {
     document.removeEventListener('mousemove', resize, false);
     const { id } = e.target;
     if (!$sound.name) return;
-    // return;
-    if (id === 'loopStart') {
+
+    if (loopClickTarget === 'loopStart') {
       loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
-      // player.loopStart = loopTimeMarker;
       loopStart.set(loopTimeMarker);
-      console.log('loopTimeMarker (start): ', loopTimeMarker);
-    } else if (id === 'loopEnd') {
-      console.log(e.target.getBoundingClientRect().width);
+    } else if (loopClickTarget === 'loopEnd') {
       loopTimeMarker = mapRange(
         e.target.getBoundingClientRect().width,
         0,
@@ -102,15 +89,13 @@
       );
 
       loopEnd.set(Math.abs(loopTimeMarker - player.buffer.duration));
-
-      // loopTimes.set({
-      //   ...loopTimes,
-      //   loopEnd: Math.abs(loopTimeMarker - player.buffer.duration)
-      // });
     }
+
+    if (loopStartDiv.style.width === '0px') loopStart.set(0);
+    if (loopEndDiv.style.width === '0px') loopEnd.set(0);
   }
 
-  // TODO - KEEP OR DELETE?
+  // TODO - KEEP OR DELETE? click on waveform to set loop in/out
 
   // function handleLoopPositionClick(e) {
   //   if (!$sound.name) return;
@@ -136,6 +121,7 @@
 
   document.addEventListener('mouseup', function (e) {
     document.removeEventListener('mousemove', resize, false);
+    // console.log(e);
     setLoopPos(e);
   });
 </script>
