@@ -112,8 +112,6 @@
     const dy = size / 2 - offsetY;
     const angle = Math.atan2(dy, dx);
 
-    // console.log(offsetX, offsetY)
-
     let mappedValue;
 
     const start = -Math.PI / 2 - Math.PI / 6;

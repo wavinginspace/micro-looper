@@ -15,6 +15,14 @@ export function modalOpen(initial) {
     isOpen,
     open: () => set(true),
     close: () => set(false),
-    toggle: () => update((n) => !n),
+    toggle: () => update((n) => !n)
   };
 }
+
+// export let loopTimes = writable({
+//   loopStart: 0,
+//   loopEnd: 0
+// });
+
+export let loopStart = writable(0);
+export let loopEnd = writable(0);

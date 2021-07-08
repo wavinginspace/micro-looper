@@ -5,9 +5,10 @@
   import LibLoader from './LibLoader.svelte';
   import Knob from './Knob.svelte';
   import SoundTitle from './SoundTitle.svelte';
-  import { sound, random } from '../store';
+  import { sound, random, loopStart, loopEnd } from '../store';
   import { afterUpdate } from 'svelte';
   import { fade, fly } from 'svelte/transition';
+  import { resetLoopDivs } from './SoundTitle.svelte';
 
   import Play from 'carbon-icons-svelte/lib/PlayFilledAlt24';
   import Pause from 'carbon-icons-svelte/lib/PauseFilled24';
@@ -118,6 +119,9 @@
 
   // auto turn off playing after load
   $: if (loadCount > 1) playing = false;
+
+  $: player.loopStart = $loopStart;
+  $: player.loopEnd = $loopEnd;
 
   function triggerRandom() {
     random.set(true);
@@ -296,8 +300,7 @@
     mute = false;
     // player.loopStart = 0;
     // player.loopEnd = 0;
-    // loopStartDiv.style.width = 0;
-    // loopEndDiv.style.width = 0;
+    resetLoopDivs();
   }
 </script>
 
@@ -332,12 +335,14 @@
         class="absolute inset-x-0 text-center min-w-min top-2 text-gray-800 transition"
         transition:fade={{ duration: 200 }}
       >
-      <span class="flex justify-center align-center text-sm relative -bottom-0.5">
-        <span class="m-0">{recordMinutes}:</span>
-        <span hidden={recordSeconds > 9}>{recordSecondsPlaceholder}</span>
-        <span class="m-0">{recordSeconds}</span>
+        <span
+          class="flex justify-center align-center text-sm relative -bottom-0.5"
+        >
+          <span class="m-0">{recordMinutes}:</span>
+          <span hidden={recordSeconds > 9}>{recordSecondsPlaceholder}</span>
+          <span class="m-0">{recordSeconds}</span>
+        </span>
       </span>
-    </span>
     {/if}
 
     <button

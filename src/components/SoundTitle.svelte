@@ -1,16 +1,28 @@
+<script context="module">
+  let loopStartDiv;
+  let loopEndDiv;
+  let loopStartPos = 0;
+  let loopEndPos = 250;
+  
+  export function resetLoopDivs() {
+    loopStartDiv.style.width = 0;
+    loopEndDiv.style.width = 0;
+    loopStartPos = 0;
+    loopEndPos = 250;
+  }
+</script>
+
 <script>
   import { sound } from '../store';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
+  import { loopStart, loopEnd } from '../store';
   export let player;
 
   let mousePositionX;
   let mouseDown = false;
   let loopClickTarget;
-  let loopStartDiv;
-  let loopEndDiv;
-  let loopStartPos = 0;
-  let loopEndPos = 250;
+
   let loopTimeMarker;
   let playheadPos = 0;
 
@@ -70,24 +82,32 @@
   // ** TODO - convert this to set loop in/out in store so Player component can read it
 
   function setLoopPos(e) {
-    // document.removeEventListener('mousemove', resize, false);
-    // const { id } = e.target;
-    // if (!$sound.name) return;
+    document.removeEventListener('mousemove', resize, false);
+    const { id } = e.target;
+    if (!$sound.name) return;
     // return;
-    // if (id === 'loopStart') {
-    //   loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
-    //   player.loopStart = loopTimeMarker;
-    //   console.log('ran');
-    // } else if (id === 'loopEnd') {
-    //   loopTimeMarker = mapRange(
-    //     e.target.getBoundingClientRect().width,
-    //     0,
-    //     250,
-    //     0,
-    //     player.buffer.duration
-    //   );
-    //   player.loopEnd = Math.abs(player.buffer.duration - loopTimeMarker);
-    // }
+    if (id === 'loopStart') {
+      loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
+      // player.loopStart = loopTimeMarker;
+      loopStart.set(loopTimeMarker);
+      console.log('loopTimeMarker (start): ', loopTimeMarker);
+    } else if (id === 'loopEnd') {
+      console.log(e.target.getBoundingClientRect().width);
+      loopTimeMarker = mapRange(
+        e.target.getBoundingClientRect().width,
+        0,
+        250,
+        0,
+        player.buffer.duration
+      );
+
+      loopEnd.set(Math.abs(loopTimeMarker - player.buffer.duration));
+
+      // loopTimes.set({
+      //   ...loopTimes,
+      //   loopEnd: Math.abs(loopTimeMarker - player.buffer.duration)
+      // });
+    }
   }
 
   // TODO - KEEP OR DELETE?
@@ -113,13 +133,6 @@
   //     loopEndDiv.style.width = `${250 - e.offsetX}px`;
   //   }
   // }
-
-  export function resetLoopDivs() {
-    loopStartDiv.style.width = 0;
-    loopEndDiv.style.width = 0;
-    loopStartPos = 0;
-    loopEndPos = 250;
-  }
 
   document.addEventListener('mouseup', function (e) {
     document.removeEventListener('mousemove', resize, false);
