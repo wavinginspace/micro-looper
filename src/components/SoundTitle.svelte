@@ -45,8 +45,6 @@
     } else if (loopClickTarget === 'loopEnd' && mouseDown) {
       loopEndDiv.style.width =
         parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
-    } else {
-      console.log('STOPPED');
     }
   }
 
@@ -57,21 +55,19 @@
 
   function handleLoopDrag(e) {
     if (!$sound.name) return;
-    // loopClickTarget = e.target.id
     let { id } = e.target;
-    console.log(id);
     loopClickTarget = id;
 
     if (e.offsetX >= 0 && loopClickTarget === 'loopStart') {
-      console.log('e.offsetX', e.offsetX);
       mousePositionX = e.x;
       document.addEventListener('mousemove', resize, false);
     } else if (e.offsetX <= 250 && loopClickTarget === 'loopEnd') {
-      console.log('e.offsetX', e.offsetX);
       mousePositionX = e.x;
       document.addEventListener('mousemove', resize, false);
     }
   }
+
+  // ** TODO - convert this to set loop in/out in store so Player component can read it
 
   function setLoopPos(e) {
     // document.removeEventListener('mousemove', resize, false);
@@ -136,6 +132,7 @@
   class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
   style="background-image: url('{$sound.image}'); background-repeat: round;"
 >
+  <!-- ** TODO - make loopBackground draggable? might need to also change the width of loopBackground every time loopStart/End is dragged -->
   <div
     id="loopBackground"
     class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
@@ -145,7 +142,6 @@
       id="loopStart"
       class="loop-div loop-div__left z-10"
       on:mousedown={handleLoopDrag}
-      on:mouseup={() => console.log('MOUSE UP')}
     />
     <div
       id="loopEnd"
