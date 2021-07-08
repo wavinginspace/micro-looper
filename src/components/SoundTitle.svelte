@@ -1,14 +1,10 @@
 <script context="module">
   let loopStartDiv;
   let loopEndDiv;
-  let loopStartPos = 0;
-  let loopEndPos = 250;
 
   export function resetLoopDivs() {
     loopStartDiv.style.width = 0;
     loopEndDiv.style.width = 0;
-    loopStartPos = 0;
-    loopEndPos = 250;
   }
 </script>
 
@@ -21,12 +17,12 @@
 
   let mousePositionX;
   let mouseDown = false;
+  let divDiff;
+  const minDiff = 10;
   let loopClickTarget;
-
+  let dx;
   let loopTimeMarker;
   let playheadPos = 0;
-
-  // let playerContainer;
 
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
@@ -40,15 +36,29 @@
   });
 
   function resize(e) {
-    let dx = e.x - mousePositionX;
+    dx = e.x - mousePositionX;
     mousePositionX = e.x;
 
+    divDiff =
+      250 -
+      parseInt(loopEndDiv.style.width) -
+      parseInt(loopStartDiv.style.width);
+
     if (loopClickTarget === 'loopStart' && mouseDown) {
-      loopStartDiv.style.width =
-        parseInt(getComputedStyle(loopStartDiv, '').width) + dx + 'px';
+      console.log(dx);
+      if (divDiff <= minDiff && dx >= 0) {
+        return;
+      } else {
+        loopStartDiv.style.width =
+          parseInt(getComputedStyle(loopStartDiv, '').width) + dx + 'px';
+      }
     } else if (loopClickTarget === 'loopEnd' && mouseDown) {
-      loopEndDiv.style.width =
-        parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
+      if (divDiff <= minDiff && dx <= 0) {
+        return;
+      } else {
+        loopEndDiv.style.width =
+          parseInt(getComputedStyle(loopEndDiv, '').width) - dx + 'px';
+      }
     }
   }
 
@@ -61,25 +71,24 @@
     if (!$sound.name) return;
     let { id } = e.target;
     loopClickTarget = id;
-
-    if (e.offsetX >= 0 && loopClickTarget === 'loopStart') {
-      mousePositionX = e.x;
-      document.addEventListener('mousemove', resize, false);
-    } else if (e.offsetX <= 250 && loopClickTarget === 'loopEnd') {
-      mousePositionX = e.x;
-      document.addEventListener('mousemove', resize, false);
-    }
+    mousePositionX = e.x;
+    document.addEventListener('mousemove', resize, false);
   }
 
   function setLoopPos(e) {
     document.removeEventListener('mousemove', resize, false);
-    const { id } = e.target;
     if (!$sound.name) return;
 
     if (loopClickTarget === 'loopStart') {
+      if (divDiff <= minDiff && dx > 0) {
+        return;
+      }
       loopTimeMarker = mapRange(e.offsetX, 0, 250, 0, player.buffer.duration);
       loopStart.set(loopTimeMarker);
     } else if (loopClickTarget === 'loopEnd') {
+      if (divDiff <= minDiff && dx < 0) {
+        return;
+      }
       loopTimeMarker = mapRange(
         e.target.getBoundingClientRect().width,
         0,
@@ -94,6 +103,11 @@
     if (loopStartDiv.style.width === '0px') loopStart.set(0);
     if (loopEndDiv.style.width === '0px') loopEnd.set(0);
   }
+
+  document.addEventListener('mouseup', function (e) {
+    document.removeEventListener('mousemove', resize, false);
+    setLoopPos(e);
+  });
 
   // TODO - KEEP OR DELETE? click on waveform to set loop in/out
 
@@ -118,12 +132,6 @@
   //     loopEndDiv.style.width = `${250 - e.offsetX}px`;
   //   }
   // }
-
-  document.addEventListener('mouseup', function (e) {
-    document.removeEventListener('mousemove', resize, false);
-    // console.log(e);
-    setLoopPos(e);
-  });
 </script>
 
 <div
