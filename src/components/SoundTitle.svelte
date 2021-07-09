@@ -186,6 +186,7 @@
   .loop-div {
     @apply h-full bg-white absolute top-0;
     width: 0;
+    background-blend-mode: luminosity;
     &::after {
       content: ' ';
       position: absolute;
@@ -206,6 +207,5 @@
         left: -4px;
       }
     }
-    background-blend-mode: luminosity;
   }
 </style>
