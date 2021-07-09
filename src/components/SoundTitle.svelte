@@ -9,20 +9,22 @@
 </script>
 
 <script>
-  import { sound } from '../store';
-  import { onMount } from 'svelte';
+  import { onMount, createEventDispatcher } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import { loopStart, loopEnd } from '../store';
+  import { sound, loopStart, loopEnd } from '../store';
   export let player;
 
-  let mousePositionX;
-  let mouseDown = false;
-  let divDiff;
-  const minDiff = 10;
-  let loopClickTarget;
-  let dx;
-  let loopTimeMarker;
+  
+  const dispatch = createEventDispatcher();
+
   let playheadPos = 0;
+  let mouseDown = false;
+  const minDiff = 10;
+  let divDiff;
+  let mousePositionX;
+  let dx;
+  let loopClickTarget;
+  let loopTimeMarker;
 
   onMount(() => {
     loopStartDiv = document.querySelector('.loop-div__left');
@@ -45,7 +47,6 @@
       parseInt(loopStartDiv.style.width);
 
     if (loopClickTarget === 'loopStart' && mouseDown) {
-      console.log(dx);
       if (divDiff <= minDiff && dx >= 0) {
         return;
       } else {
@@ -67,12 +68,19 @@
     return c + value * (d - c);
   }
 
+  function startLoop() {
+    dispatch('startLoop', {
+      loop: true
+    })
+  }
+
   function handleLoopDrag(e) {
     if (!$sound.name) return;
     let { id } = e.target;
     loopClickTarget = id;
     mousePositionX = e.x;
     document.addEventListener('mousemove', resize, false);
+    startLoop();
   }
 
   function setLoopPos(e) {
