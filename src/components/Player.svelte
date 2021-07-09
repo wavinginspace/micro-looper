@@ -149,10 +149,6 @@
     let now = Tone.now();
     let fadeTime = 0.3;
 
-    // Tone.loaded().then(() => {
-    //   player.loopEnd = Math.min(player.buffer.duration, player.loopEnd);
-    // });
-
     pingPong.feedback.setTargetAtTime(ppFeedback, now, fadeTime);
     pingPong.delayTime.setTargetAtTime(ppTime, now, fadeTime);
     pingPong.wet.setTargetAtTime(ppWet, now, fadeTime);
