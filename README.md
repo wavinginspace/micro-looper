@@ -11,7 +11,6 @@ Click the Random Page button to load a random page of results from FreeSound.
 
 Upcoming features:
 
-- Loop in/out control
 - Filters
 - More audio visualization
 - Dark mode
