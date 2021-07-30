@@ -1,8 +1,9 @@
 <script>
   import PlayFilled from 'carbon-icons-svelte/lib/PlayFilled24';
   import PauseFilled from 'carbon-icons-svelte/lib/PauseFilled24';
-  import { sound } from '../store';
+  import { sound, loopStart, loopEnd } from '../store';
   import { onMount } from 'svelte';
+  import { resetLoopDivs } from './SoundTitle.svelte';
 
   export let result;
 
@@ -15,11 +16,9 @@
     let mins = ~~((result.duration % 3600) / 60);
     let secs = ~~result.duration % 60;
     // Output like "1:01" or "4:03:59" or "123:03:59"
-
     if (hrs > 0) {
       time += '' + hrs + ':' + (mins < 10 ? '0' : '');
     }
-
     time += '' + mins + ':' + (secs < 10 ? '0' : '');
     time += '' + secs;
     return time;
@@ -35,6 +34,9 @@
       name: result.name,
       image: result.images.waveform_bw_m
     });
+    loopStart.set(0);
+    loopEnd.set(0);
+    resetLoopDivs();
     paused = true;
   }
 
@@ -92,14 +94,9 @@
         class="sound-link text-indigo-600 font-transition text-xs  font-bold mr-4 break-words truncate z-20"
       >
         {result.name.split('.')[0]}
-        <!-- {result.name.length > 24
-            ? result.name.substring(0, 21) + '...'
-            : result.name.split('.')[0]} -->
       </span>
       <span class="text-xs text-gray-800 font-medium z-20">{time}</span>
     </div>
-    <!-- <br /> -->
-    <!-- <a class="sound-download-link">DL</a> -->
     <audio
       id={`audio${result.id}`}
       class="sound-preview-audio"
@@ -121,10 +118,6 @@
         <PauseFilled class="preview-icon" />
       {/if}
     </div>
-    <!-- <span class="sound-description text-sm">
-      {@html result.description.substring(0, 20) + '...'}
-    </span> -->
-    <!-- <img src="{result.images.waveform_bw_m}" alt="" /> -->
   </li>
 </div>
 

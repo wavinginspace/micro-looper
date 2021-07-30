@@ -66,12 +66,9 @@
       a.href = audioRecord.src;
       a.download = `${$sound.name.split('.')[0]}.wav`;
       a.click();
-      // TODO was throwing error - not needed? not supported by Service Workers
-      // window.URL.revokeObjectURL(audioRecord.src);
     };
   }
 
-  // TODO refactor this into object ??
   let playing = player?.state === 'started';
   let recording = recorder?.state === 'active';
   let audioRecord; // recording audio element
@@ -171,8 +168,6 @@
     togglePlay();
     if (player.state == 'started') {
       clearTimeout(playTimer);
-      // clearInterval(playheadTimer);
-      // playheadPos = 0;
       playing = false;
       fadeOut(fadeTime);
 
@@ -191,7 +186,6 @@
         playTimer = setTimeout(() => {
           if (!loop) {
             togglePlay();
-            // clearInterval(playheadTimer);
           }
         }, 1000 * player.buffer.duration);
       });
@@ -205,7 +199,7 @@
     }
   }
 
-  // TODO refactor Promise into reusable function?
+  // TODO refactor Promises into reusable function if more needed
 
   function handleReverseClick() {
     reverse = !reverse;
@@ -294,8 +288,6 @@
     ppWet = 1;
     ppBypass = false;
     mute = false;
-    // player.loopStart = 0;
-    // player.loopEnd = 0;
     resetLoopDivs();
   }
 </script>
@@ -371,7 +363,7 @@
         on:click={handlePlayClick}
         on:touchend={handlePlayClick}
         class="control-button disabled:bg-gray-200"
-        class:bg-green-100={playing}
+        class:active={playing}
         disabled={!$sound.name}
       >
         {#if playing}
@@ -383,20 +375,20 @@
       <button
         data-tooltip="Record playback"
         on:click={handleRecordClick}
-        class="control-button flex justify-center disabled:bg-gray-200"
+        class="control-button record-button flex justify-center disabled:bg-gray-200"
         disabled={!$sound.name}
       >
         <div class="w-6 h-6 flex justify-center items-center">
           <div
-            class="w-5 h-5 bg-gray-800 rounded rounded-full"
-            class:bg-red-500={recording}
+            class="w-5 h-5 bg-gray-800 rounded-full record-circle"
+            class:active={recording}
           />
         </div>
       </button>
       <button
         data-tooltip="Loop"
         class="control-button"
-        class:bg-green-100={loop}
+        class:active={loop}
         on:click={handleLoopClick}
       >
         <div class="loop-icon">
@@ -406,7 +398,7 @@
       <button
         data-tooltip="Reverse"
         class="control-button"
-        class:bg-green-100={reverse}
+        class:active={reverse}
         on:click={handleReverseClick}
       >
         <Reverse />
@@ -559,6 +551,13 @@
 
 <style>
   .control-button {
-    @apply border-2 border-indigo-600 rounded p-2 relative active:border-indigo-700 focus:border-indigo-700 focus:outline-none;
+    @apply border-2 border-indigo-600 rounded p-2 relative active:border-indigo-700 focus:border-indigo-700 focus:outline-none transition;
+    &.active {
+      @apply bg-green-100;
+    }
+  }
+
+  .record-circle.active {
+    @apply bg-red-500 transition;
   }
 </style>

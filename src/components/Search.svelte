@@ -1,11 +1,12 @@
 <script>
-  import Result from "./Result.svelte";
-  import Loader from "./Loader.svelte";
-  import { sound, random } from "../store";
+  import Result from './Result.svelte';
+  import Loader from './Loader.svelte';
+  import { sound, random, loopStart, loopEnd } from '../store';
+  import { resetLoopDivs } from './SoundTitle.svelte';
 
   const PARAMS = `name,username,id,url,images,duration,previews,type,normalized=1`;
-  let search = "";
-  let results = fetchData("cello");
+  let search = '';
+  let results = fetchData('cello');
 
   const debounce = (callback, wait) => {
     let timeoutId = null;
@@ -17,17 +18,15 @@
     };
   };
 
-  async function fetchData(query, randomPage = "") {
+  async function fetchData(query, randomPage = '') {
     if (randomPage) {
       query += randomPage;
     }
-    // console.log(query);
     try {
       const res = await fetch(
         `/.netlify/functions/token-hider?query=${query}&fields=${PARAMS}`
       );
       const data = await res.json();
-      // console.log(data);
       return data;
     } catch (err) {
       return console.error(err);
@@ -39,10 +38,10 @@
   }
 
   async function handleRandomClick() {
-    search = "";
+    search = '';
     let randomNum = Math.floor(Math.random() * (50000 / 15));
     let randomPage = `&page=${randomNum}`;
-    results = fetchData("", randomPage);
+    results = fetchData('', randomPage);
     return results;
   }
 
@@ -54,16 +53,20 @@
 
   async function pickRandom() {
     const randomIndex = Math.floor(Math.random() * 15);
-    const randomResults = await handleRandomClick()
+    const randomResults = await handleRandomClick();
     results = randomResults;
     return results?.results[randomIndex];
   }
 
   function setRandom(randomSound) {
     sound.set({
-      sound: randomSound.previews["preview-hq-ogg"],
+      sound: randomSound.previews['preview-hq-ogg'],
       name: randomSound.name,
+      image: randomSound.images.waveform_bw_m
     });
+    loopStart.set(0);
+    loopEnd.set(0);
+    resetLoopDivs();
   }
 
   async function getRandomSound() {
@@ -77,52 +80,57 @@
   }
 
   $: if ($random) getRandomSound();
-
 </script>
 
 <div class="relative max-w-5xl mx-auto">
   <div class="search-container mx-auto max-w-4xl relative mt-4 px-8">
-    <!-- TODO come up with better design pattern than using empty div for flex spacing. or replace with Sort By select -->
-    <div></div>
+    <!-- offsetting div -->
+    <div />
     <input
       type="search"
       id="search-bar"
       class="border text-sm min-w-24 text-indigo-500 rounded-sm border-indigo-600 p-2 outline-none focus:ring-2 ring-offset-2 ring-indigo-400 ring-opacity-40 placeholder-indigo-300"
       name="search-bar"
       placeholder="Search FreeSound"
-      bind:value="{search}"
-      on:input|preventDefault="{handleSearch}" />
+      bind:value={search}
+      on:input|preventDefault={handleSearch}
+    />
     <button
-      on:click|preventDefault="{handleRandomClick}"
-      class="text-sm font-bold w-32 bg-white text-gray-700 border-green-300 border-2 py-2 px-3 rounded-lg hover:text-indigo-600 outline-none transition-all focus:outline-none focus:ring-2 ring-offset-2 ring-indigo-200 ring-opacity-40 active:outline-none active:mt-2 hidden sm:block">
+      on:click|preventDefault={handleRandomClick}
+      class="text-sm font-bold w-32 bg-white text-gray-700 border-green-300 border-2 py-2 px-3 rounded-lg hover:text-indigo-600 outline-none transition-all focus:outline-none focus:ring-2 ring-offset-2 ring-indigo-200 ring-opacity-40 active:outline-none active:mt-2 hidden sm:block"
+    >
       Random Page
     </button>
   </div>
 
   <div
-    class="results-wrapper pb-12 md:pb-0 w-full my-0 mx-auto relative max-w-4xl">
+    class="results-wrapper pb-12 md:pb-0 w-full my-0 mx-auto relative max-w-4xl"
+  >
     {#await results}
       <Loader />
     {:then value}
       <ul id="results">
         {#each value.results as result}
           {#if result}
-            <Result result="{result}" />
+            <Result {result} />
           {/if}
         {/each}
       </ul>
       <div
-        class="flex justify-between items-center px-8 mx-auto w-full max-w-4xl">
+        class="flex justify-between items-center px-8 mx-auto w-full max-w-4xl"
+      >
         {#if value.previous}
           <button
             class="font-bold bg-white border-gray-800 text-gray-800  border-2 rounded-lg hover:text-indigo-600 active:mt-0.5 transition-all p-2 mr-auto"
-            on:click="{() => handleGetAdjacentPage(value.previous)}">
+            on:click={() => handleGetAdjacentPage(value.previous)}
+          >
             Prev
           </button>
         {/if}
         <button
           class="font-bold ml-auto bg-white border-gray-800 text-gray-800 border-2 rounded-lg hover:text-indigo-600 active:mt-0.5 transition-all p-2 "
-          on:click="{() => handleGetAdjacentPage(value.next)}">
+          on:click={() => handleGetAdjacentPage(value.next)}
+        >
           Next
         </button>
       </div>
@@ -155,7 +163,7 @@
 
   .search-container {
     display: grid;
-    grid-template-areas: "empty search random";
+    grid-template-areas: 'empty search random';
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto;
     & button {
@@ -169,7 +177,7 @@
     }
   }
 
-  input[type="search"]::-webkit-search-cancel-button {
+  input[type='search']::-webkit-search-cancel-button {
     -webkit-appearance: none;
     height: 1em;
     width: 1em;
@@ -182,7 +190,7 @@
     cursor: pointer;
   }
 
-  input[type="search"]:focus::-webkit-search-cancel-button {
+  input[type='search']:focus::-webkit-search-cancel-button {
     opacity: 0.5;
     pointer-events: all;
     transition: 0.2s ease all;
@@ -190,5 +198,4 @@
       opacity: 0.7;
     }
   }
-
 </style>

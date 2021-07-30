@@ -14,7 +14,6 @@
   import { sound, loopStart, loopEnd } from '../store';
   export let player;
 
-  
   const dispatch = createEventDispatcher();
 
   let playheadPos = 0;
@@ -71,7 +70,7 @@
   function startLoop() {
     dispatch('startLoop', {
       loop: true
-    })
+    });
   }
 
   function handleLoopDrag(e) {
@@ -116,71 +115,52 @@
     document.removeEventListener('mousemove', resize, false);
     setLoopPos(e);
   });
-
-  // TODO - KEEP OR DELETE? click on waveform to set loop in/out
-
-  // function handleLoopPositionClick(e) {
-  //   if (!$sound.name) return;
-  //   let { offsetX } = e;
-  //   let loopTime = mapRange(offsetX, 0, 250, 0, player.buffer.duration);
-
-  //   console.log(loopTime);
-
-  //   if (
-  //     offsetX >= 0 &&
-  //     offsetX < loopEndPos &&
-  //     offsetX - loopStartPos < loopEndPos - offsetX
-  //   ) {
-  //     loopStartPos = offsetX;
-  //     player.loopStart = loopTime;
-  //     loopStartDiv.style.width = `${e.offsetX}px`;
-  //   } else if (offsetX > loopStartPos && offsetX <= 250) {
-  //     loopEndPos = offsetX;
-  //     player.loopEnd = loopTime;
-  //     loopEndDiv.style.width = `${250 - e.offsetX}px`;
-  //   }
-  // }
 </script>
 
 <div
-  id="soundTitleWrapper"
-  class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
-  style="background-image: url('{$sound.image}'); background-repeat: round;"
+  class="soundtitle-tooltip"
+  class:hide={$sound.name.length <= 30}
+  data-tooltip={$sound.name}
 >
-  <!-- ** TODO - make loopBackground draggable? might need to also change the width of loopBackground every time loopStart/End is dragged -->
   <div
-    id="loopBackground"
-    class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
+    id="soundTitleWrapper"
+    class="sound-title-wrapper p-2 mb-4 mx-auto border-gray-800 border rounded relative"
+    style="background-image: url('{$sound.image}'); background-repeat: round;"
   >
-    <div class="playhead" style="left: {playheadPos}px" />
     <div
-      id="loopStart"
-      class="loop-div loop-div__left z-10"
-      on:mousedown={handleLoopDrag}
-    />
-    <div
-      id="loopEnd"
-      class="loop-div loop-div__right z-10"
-      on:mousedown={handleLoopDrag}
-    />
-  </div>
-  {#if $sound.name}
-    {#each [$sound.name] as soundName (soundName)}
-      <h2
-        class="sound-title text-center font-semibold relative text-indigo-500 cursor-default select-none pointer-events-none"
-        in:fly={{ y: -200, duration: 2000 }}
-        out:fade
-      >
-        {soundName.length > 30
-          ? `${soundName.split('.')[0].substring(0, 28)}...`
-          : soundName.split('.')[0]}
+      id="loopBackground"
+      class="bg-indigo-200 opacity-50 absolute w-full h-full flex items-center justify-center inset-0"
+    >
+      <div class="playhead" style="left: {playheadPos}px" />
+      <div
+        id="loopStart"
+        class="loop-div loop-div__left z-10"
+        on:mousedown={handleLoopDrag}
+      />
+      <div
+        id="loopEnd"
+        class="loop-div loop-div__right z-10"
+        on:mousedown={handleLoopDrag}
+      />
+    </div>
+    {#if $sound.name}
+      {#each [$sound.name] as soundName (soundName)}
+        <h2
+          class="sound-title text-center font-semibold relative text-indigo-600 cursor-default select-none pointer-events-none"
+          in:fly={{ y: -200, duration: 2000 }}
+          out:fade
+        >
+          {soundName.length > 30
+            ? `${soundName.split('.')[0].substring(0, 28)}...`
+            : soundName.split('.')[0]}
+        </h2>
+      {/each}
+    {:else}
+      <h2 class="text-center font-semibold text-indigo-500 relative" out:fade>
+        No sound loaded yet
       </h2>
-    {/each}
-  {:else}
-    <h2 class="text-center font-semibold text-indigo-500 relative" out:fade>
-      No sound loaded yet
-    </h2>
-  {/if}
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -215,5 +195,15 @@
         left: -4px;
       }
     }
+  }
+
+  .soundtitle-tooltip.hide::after,
+  .soundtitle-tooltip.hide::before {
+    display: none;
+  }
+
+  .soundtitle-tooltip::after,
+  .soundtitle-tooltip::before {
+    bottom: 88%;
   }
 </style>
